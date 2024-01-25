@@ -251,12 +251,12 @@
                     size: 100, 50
                     text: 'Статический'
                     on_release:
-                        app.root.current = 'static_isp'
+                        app.root.current = 'Static'
                 OneLineIconListItem:
                     size: 100, 50
                     text: 'PPPoE'
                     on_release:
-                        app.root.current = 'pppoe'
+                        app.root.current = 'PPPoE'
                 OneLineIconListItem:
                     size: 100, 50
                     text: 'LTE, WCDMA, GSM, USB-модем'
@@ -270,6 +270,7 @@
                         size_hint_x: None
                         pos_hint: {'center_x': 0.79, 'center_y': .5}
                     MDLabel:
+                        id: vsegda_activno
                         text: 'Всегда активно'
                         size_hint_x: None
                         pos_hint: {'center_x': 0.95, 'center_y': .5}
@@ -317,9 +318,6 @@
                         icon: "arrow-left"
                         on_release:
                             app.root.current = 'MainMenu'
-                OneLineIconListItem:
-                    size: 100, 50
-                    text: 'Подсеть и dhcp сервер'
                 ThreeLineListItem:
                     size: 100, 80
                     text: 'Локальный IPv4 маршрутизатора'
@@ -330,17 +328,6 @@
                         hint_text: "192.168.88.1"
                         size_hint_x: None
                         pos_hint: {'center_x': 0.7, 'center_y': .5}
-                OneLineIconListItem:
-                    size: 100, 80
-                    text: 'Время аренды адресов dhcp сервером'
-                        MDTextField:
-                        id: ipv4_local_time
-                        hint_text: "1d11:11:11"
-                        size_hint_x: None
-                        pos_hint: {'center_x': 0.7, 'center_y': .5}
-                OneLineIconListItem:
-                    size: 100, 50
-                    text: ' '
                     MDRaisedButton:
                         id: save_local_ip
                         text: "Сохранить"
@@ -352,10 +339,27 @@
                             app.local_ip()
                 OneLineIconListItem:
                     size: 100, 50
+                    text: 'Время аренды адресов dhcp сервером'
+                    MDTextField:
+                        id: ipv4_local_time
+                        hint_text: "1d11:11:11"
+                        size_hint_x: None
+                        pos_hint: {'center_x': 0.7, 'center_y': .5}
+                    MDRaisedButton:
+                        id: save_local_time
+                        text: "Сохранить"
+                        md_bg_color: .35, .35, 1, 1
+                        font_size: 14
+                        size_hint_x: None
+                        pos_hint: {'center_x': 0.9, 'center_y': .5}
+                        on_release:
+                            app.local_time()
+                OneLineIconListItem:
+                    size: 100, 50
                     text: 'DNS сервера'
                     MDTextField:
                         id: local_dns
-                        hint_text: "74.82.42.42, 2001:470:20::2"
+                        hint_text: "2001:470:20::2,74.82.42.42"
                         width: 250
                         size_hint_x: None
                         pos_hint: {'center_x': 0.6, 'center_y': .5}
@@ -367,7 +371,7 @@
                         size_hint_x: None
                         pos_hint: {'center_x': 0.9, 'center_y': .5}
                         on_release:
-                            app.resour()
+                            app.local_dns()
                 OneLineIconListItem:
                     size: 100, 50
                     text: 'Перехват DNS запросов из локальной сети'
@@ -379,7 +383,7 @@
                         size_hint_x: None
                         pos_hint: {'center_x': 0.9, 'center_y': .5}
                         on_release:
-                            app.resour()
+                            app.perehvat_dns()
                 OneLineIconListItem:
                     size: 100, 50
                     text: 'DNS over HTTPS от Hurricane Electric'
@@ -391,25 +395,25 @@
                         size_hint_x: None
                         pos_hint: {'center_x': 0.9, 'center_y': .5}
                         on_release:
-                            app.resour()
+                            app.doh()
                 OneLineIconListItem:
                     size: 100, 50
                     text: 'NTP клиент'
                     MDTextField:
                         id: local_ntp
                         hint_text: "time.google.com, time.windows.com"
-                        width: 250
+                        width: 255
                         size_hint_x: None
                         pos_hint: {'center_x': 0.55, 'center_y': .5}
                     MDRaisedButton:
-                        id: save_local_dns
+                        id: save_local_ntp
                         text: "Сохранить"
                         md_bg_color: .35, .35, 1, 1
                         font_size: 14
                         size_hint_x: None
                         pos_hint: {'center_x': 0.9, 'center_y': .5}
                         on_release:
-                            app.resour()
+                            app.ntp()
                 OneLineIconListItem:
                     size: 100, 50
                     text: 'NTP сервер'
@@ -421,7 +425,7 @@
                         size_hint_x: None
                         pos_hint: {'center_x': 0.9, 'center_y': .5}
                         on_release:
-                            app.resour()
+                            app.ntp_srv()
 <wifi>:
     MDBoxLayout:
         orientation: 'vertical'
@@ -446,7 +450,8 @@
                     size: 100, 50
                     text: 'WiFi 2.4 Ghz'
                     MDLabel:
-                        text: 'Имеется'
+                        id: wifi_24_have
+                        text: 'Отсутствует'
                         size_hint_x: None
                         pos_hint: {'center_x': 0.75, 'center_y': .5}
                     MDRaisedButton:
@@ -457,26 +462,26 @@
                         size_hint_x: None
                         pos_hint: {'center_x': 0.9, 'center_y': .5}
                         on_release:
-                            app.resour()
+                            app.twowifivkl()
                 OneLineIconListItem:
                     size: 100, 50
                     text: 'Имя сети'
                     MDTextField:
-                        id: wifi24_channel
+                        id: wifi24_ssid
                         hint_text: "MikroTik_2.4"
                         width: 100
                         size_hint_x: None
                         pos_hint: {'center_x': 0.55, 'center_y': .5}
-
                 OneLineIconListItem:
                     size: 100, 50
-                    text: 'Частота:'
-                    MDTextField:
+                    text: 'Канал:'
+                    MDRaisedButton:
                         id: wifi24_channel
-                        hint_text: "2412-2482"
+                        text: "Канал"
                         width: 50
                         size_hint_x: None
-                        pos_hint: {'center_x': 0.55, 'center_y': .5}
+                        pos_hint: {'center_x': 0.9, 'center_y': .5}
+                        on_release: app.two.open()
                 OneLineIconListItem:
                     size: 100, 50
                     text: 'Ширина канала'
@@ -488,19 +493,19 @@
                         size_hint_x: None
                         pos_hint: {'center_x': 0.9, 'center_y': .5}
                         on_release:
-                            app.resour()
+                            app.twowidth()
                 OneLineIconListItem:
                     size: 100, 50
                     text: ''
                     MDRaisedButton:
-                        id: wifi_24
+                        id: wifi_24_save
                         text: "Сохранить"
                         md_bg_color: .35, .35, 1, 1
                         font_size: 14
                         size_hint_x: None
                         pos_hint: {'center_x': 0.9, 'center_y': .5}
                         on_release:
-                            app.resour()
+                            app.twowifi()
                 OneLineIconListItem:
                     size: 100, 50
                     text: ''
@@ -508,36 +513,39 @@
                     size: 100, 50
                     text: 'WiFi 5 Ghz'
                     MDLabel:
-                        text: 'Имеется'
+                        id: wifi_5_have
+                        text: 'Отсутствует'
                         size_hint_x: None
                         pos_hint: {'center_x': 0.75, 'center_y': .5}
                     MDRaisedButton:
-                        id: wifi_24
+                        id: wifi_5
                         text: "Вкл"
                         md_bg_color: .35, .35, 1, 1
                         font_size: 14
                         size_hint_x: None
                         pos_hint: {'center_x': 0.9, 'center_y': .5}
                         on_release:
-                            app.resour()
+                            app.fivewifivkl()
                 OneLineIconListItem:
                     size: 100, 50
                     text: 'Имя сети'
                     MDTextField:
-                        id: wifi5_channel
+                        id: wifi5_ssid
                         hint_text: "MikroTik_5"
                         width: 100
                         size_hint_x: None
                         pos_hint: {'center_x': 0.55, 'center_y': .5}
                 OneLineIconListItem:
                     size: 100, 50
-                    text: 'Частота:'
-                    MDTextField:
+                    text: 'Канал:'
+                    MDRaisedButton:
                         id: wifi5_channel
-                        hint_text: "5060-5340,5660-5920"
+                        text: "Канал"
+                        hint_text: "36,40...-64,68-144,149-165"
                         width: 50
                         size_hint_x: None
-                        pos_hint: {'center_x': 0.55, 'center_y': .5}
+                        pos_hint: {'center_x': 0.9, 'center_y': .5}
+                        on_release: app.five.open()
                 OneLineIconListItem:
                     size: 100, 50
                     text: 'Ширина канала'
@@ -549,19 +557,153 @@
                         size_hint_x: None
                         pos_hint: {'center_x': 0.9, 'center_y': .5}
                         on_release:
-                            app.resour()
+                            app.fivewidth()
                 OneLineIconListItem:
                     size: 100, 50
                     text: ''
                     MDRaisedButton:
-                        id: wifi_5
+                        id: wifi_5_save
                         text: "Сохранить"
                         md_bg_color: .35, .35, 1, 1
                         font_size: 14
                         size_hint_x: None
                         pos_hint: {'center_x': 0.9, 'center_y': .5}
                         on_release:
-                            app.resour()
+                            app.fivewifi()
+                OneLineIconListItem:
+                    size: 100, 50
+                    text: ''
+                OneLineIconListItem:
+                    size: 100, 50
+                    text: 'Пароль сети Wi-Fi'
+                    MDTextField:
+                        id: wifi_password
+                        hint_text: "password"
+                        width: 100
+                        size_hint_x: None
+                        pos_hint: {'center_x': 0.55, 'center_y': .5}
+                    MDRaisedButton:
+                        id: wifi_security
+                        text: "Сохранить"
+                        md_bg_color: .35, .35, 1, 1
+                        font_size: 14
+                        size_hint_x: None
+                        pos_hint: {'center_x': 0.9, 'center_y': .5}
+                        on_release:
+                            app.wifisecurity()
+<Static>:
+    MDBoxLayout:
+        orientation: 'vertical'
+        MDToolbar:
+            title: 'MikroLite'
+            md_bg_color: .35, .35, 1, 1
+            specific_text_color: 1, 1, 1, 1
+            right_action_items: [["exit-to-app", lambda x: app.logout()]]
+        ScrollView:
+            MDList:
+                adaptive_height: True
+                OneLineIconListItem:
+                    size: 100, 50
+                    text: 'Назад'
+                    on_release:
+                        app.root.current = 'Internet'
+                    IconLeftWidget:
+                        icon: "arrow-left"
+                        on_release:
+                            app.root.current = 'Internet'
+                OneLineIconListItem:
+                    size: 100, 50
+                    text: 'Статический тип подключения'
+                OneLineIconListItem:
+                    size: 100, 50
+                    text: 'Адрес с префиксом'
+                    MDTextField:
+                        id: static_address
+                        hint_text: "100.70.14.12/10"
+                        width: 100
+                        size_hint_x: None
+                        pos_hint: {'center_x': 0.55, 'center_y': .5}
+                OneLineIconListItem:
+                    size: 100, 50
+                    text: 'Шлюз'
+                    MDTextField:
+                        id: static_gateway
+                        hint_text: "100.64.0.1"
+                        width: 100
+                        size_hint_x: None
+                        pos_hint: {'center_x': 0.55, 'center_y': .5}
+                OneLineIconListItem:
+                    size: 100, 50
+                    text: ''
+                    MDRaisedButton:
+                        id: static_net
+                        text: "Удалить подключение"
+                        md_bg_color: .35, .35, 1, 1
+                        font_size: 14
+                        size_hint_x: None
+                        pos_hint: {'center_x': 0.9, 'center_y': .5}
+                        on_release:
+                            app.static_remove()
+                    MDRaisedButton:
+                        id: static_net
+                        text: "Сохранить"
+                        md_bg_color: .35, .35, 1, 1
+                        font_size: 14
+                        size_hint_x: None
+                        pos_hint: {'center_x': 0.9, 'center_y': .5}
+                        on_release:
+                            app.static()
+<PPPoE>:
+    MDBoxLayout:
+        orientation: 'vertical'
+        MDToolbar:
+            title: 'MikroLite'
+            md_bg_color: .35, .35, 1, 1
+            specific_text_color: 1, 1, 1, 1
+            right_action_items: [["exit-to-app", lambda x: app.logout()]]
+        ScrollView:
+            MDList:
+                adaptive_height: True
+                OneLineIconListItem:
+                    size: 100, 50
+                    text: 'Назад'
+                    on_release:
+                        app.root.current = 'Internet'
+                    IconLeftWidget:
+                        icon: "arrow-left"
+                        on_release:
+                            app.root.current = 'Internet'
+                OneLineIconListItem:
+                    size: 100, 50
+                    text: 'Подключение через PPPoE'
+                OneLineIconListItem:
+                    size: 100, 50
+                    text: 'Логин'
+                    MDTextField:
+                        id: pppoe_login
+                        width: 100
+                        size_hint_x: None
+                        pos_hint: {'center_x': 0.55, 'center_y': .5}
+                OneLineIconListItem:
+                    size: 100, 50
+                    text: 'Пароль'
+                    MDTextField:
+                        id: pppoe_password
+                        width: 100
+                        size_hint_x: None
+                        pos_hint: {'center_x': 0.55, 'center_y': .5}
+                OneLineIconListItem:
+                    size: 100, 50
+                    text: ''
+                    MDRaisedButton:
+                        id: pppoe_net
+                        text: "Сохранить"
+                        md_bg_color: .35, .35, 1, 1
+                        font_size: 14
+                        size_hint_x: None
+                        pos_hint: {'center_x': 0.9, 'center_y': .5}
+                        on_release:
+                            app.u()
 <Forward>:
     MDBoxLayout:
         orientation: 'vertical'
@@ -602,6 +744,16 @@
                         icon: "arrow-left"
                         on_release:
                             app.root.current = 'MainMenu'
+                OneLineIconListItem:
+                    size: 100, 50
+                    text: 'Клиент'
+                    on_release:
+                        app.root.current = 'MainMenu'
+                OneLineIconListItem:
+                    size: 100, 50
+                    text: 'Сервер'
+                    on_release:
+                        app.root.current = 'MainMenu'
 <Other>:
     MDBoxLayout:
         orientation: 'vertical'
