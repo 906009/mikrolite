@@ -4,7 +4,7 @@
      #   orientation: 'vertical'
     MDCard:
         size_hint: None, None
-        size: 300, 400
+        size: 370, 400
         pos_hint: {"center_x" : 0.5,"center_y": 0.5}
         elevation: 10
         padding: 25
@@ -18,7 +18,7 @@
                 halign: 'center'
             MDTextField:
                 id: ip_dns
-                hint_text: "IP адрес или DNS имя"
+                hint_text: "IPv4 адрес или DNS имя"
                 font_size: 20
             MDTextField:
                 id: user
@@ -29,17 +29,29 @@
                 hint_text: "Пароль"
                 font_size: 20
                 password: True
-            MDRaisedButton:
-                text: "Подключиться"
-                md_bg_color: .35, .35, 1, 1
-                font_size: 22
-                on_release:
-                    app.connector()
-                    app.root.current = 'MainMenu'
+            MDBoxLayout:
+                orientation: 'horizontal'
+                MDRaisedButton:
+                    text: "Подключиться"
+                    md_bg_color: .35, .35, 1, 1
+                    font_size: 22
+                    on_release:
+                        app.connector()
+                        app.resour()
+                        app.root.current = 'MainMenu'
+                MDBoxLayout:
+                    orientation: 'horizontal'
+                    MDRaisedButton:
+                        text: "Автовход"
+                        md_bg_color: .35, .35, 1, 1
+                        font_size: 22
+                        on_release:
+                            app.standart()
+                            app.resour()
+                            app.root.current = 'MainMenu'
 <MainMenu>:
     BoxLayout:
         orientation:'vertical'
-
         MDToolbar:
             title: 'MikroLite'
             md_bg_color: .35, .35, 1, 1
@@ -49,258 +61,365 @@
             MDBottomNavigationItem:
                 name: 'Main_Status'
                 text: 'Статус'
-                MDGridLayout:
-                    cols: 5
-                    MDLabel:
-                        text: ''
-                        size_hint: None, None
-                    MDLabel:
-                        text: 'Статус: Активно'
-                        size_hint: None, None
-                    MDLabel:
-                        text: ''
-                        size_hint: None, None
-                    MDBoxLayout:
-                        orientation: 'vertical'
-                        MDBoxLayout:
-                            orientation:'horizontal'
+                ScrollView:
+                    GridLayout:
+                        cols: 2
+                        #orientation: 'vertical'
+                        size_hint_y: None
+                        height: self.minimum_height
+                        padding: dp(48)
+                        spacing: 10
+                        MDLabel:
+                            text: 'Статус: Активно'
+                            size_hint: None, None
+                        MDRaisedButton:
+                            text: "Обновить данные"
+                            md_bg_color: .35, .35, 1, 1
+                            on_release:
+                                app.resour()
+                        MDCard:
+                            size_hint: 0.485, None
+                            size: 100, 200
+                            pos_hint: {"center_x" : 0.5,"center_y": 0.5}
+                            elevation: 10
+                            padding: 25
+                            spacing: 25
+                            orientation: 'vertical'
                             MDLabel:
-                                text: ''
-                                size_hint: None, None
+                                id: resource
+                                text: 'Обновите данные'
+                                halign: 'center'
+                        MDCard:
+                            size_hint: 0.485, None
+                            size: 100, 200
+                            pos_hint: {"center_x" : 0.5,"center_y": 0.5}
+                            elevation: 10
+                            padding: 25
+                            spacing: 25
+                            orientation: 'vertical'
                             MDLabel:
-                                text: ''
-                                size_hint: None, None
-                            MDRaisedButton:
-                                text: "Обновить данные"
-                                md_bg_color: .35, .35, 1, 1
-                                on_release:
-                                    app.resour()
-                        MDLabel:
-                            text: ''
-                            size_hint: None, .5
-                    MDLabel:
-                        text: ''
-                        size_hint: None, None
-                    MDLabel:
-                        text: ''
-                        size_hint: None, None
-                    MDCard:
-                        size_hint: 0.485, None
-                        size: 100, 200
-                        pos_hint: {"center_x" : 0.5,"center_y": 0.5}
-                        elevation: 10
-                        padding: 25
-                        spacing: 25
-                        orientation: 'vertical'
-                        MDLabel:
-                            id: resource
-                            text: 'Обновите данные'
-                            halign: 'center'
-                    MDLabel:
-                        text: ''
-                        size_hint: None, None
-                    MDCard:
-                        size_hint: 0.485, None
-                        size: 100, 200
-                        pos_hint: {"center_x" : 0.5,"center_y": 0.5}
-                        elevation: 10
-                        padding: 25
-                        spacing: 25
-                        orientation: 'vertical'
-                        MDLabel:
-                            id: loadcpu
-                            text: 'Обновите данные'
-                            halign: 'center'
-                    MDLabel:
-                        text: ''
-                        size_hint: None, None
-                    MDLabel:
-                        text: ''
-                        size_hint: None, None
-                    MDLabel:
-                        text: ''
-                        size_hint: None, None
-                    MDLabel:
-                        text: ''
-                        size_hint: None, None
-                    MDLabel:
-                        text: ''
-                        size_hint: None, None
-                    MDLabel:
-                        text: ''
-                        size_hint: None, None
-                    MDLabel:
-                        text: ''
-                        size_hint: None, None
-                    MDCard:
-                        size_hint: 0.485, None
-                        size: 100, 200
-                        pos_hint: {"center_x" : 0.5,"center_y": 0.5}
-                        elevation: 10
-                        padding: 25
-                        spacing: 25
-                        orientation: 'vertical'
-                        MDLabel:
-                            id: model
-                            text: 'Обновите данные'
-                            halign: 'center'
-                    MDLabel:
-                        text: ''
-                        size_hint: None, None
-                    MDCard:
-                        size_hint: 0.485, None
-                        size: 100, 200
-                        pos_hint: {"center_x" : 0.5,"center_y": 0.5}
-                        elevation: 10
-                        padding: 25
-                        spacing: 25
-                        orientation: 'vertical'
-                        MDLabel:
-                            id: ipnatdetector
-                            text: 'Обновите данные'
-                            halign: 'center'
-                    MDLabel:
-                        text: ''
-                        size_hint: None, None
-                    MDLabel:
-                        text: ''
-                        size_hint: None, None
-                    MDLabel:
-                        text: ''
-                        size_hint: None, None
-                    MDLabel:
-                        text: ''
-                        size_hint: None, None
-                    MDLabel:
-                        text: ''
-                        size_hint: None, None
-                    MDLabel:
-                        text: ''
-                        size_hint: None, None
+                                id: loadcpu
+                                text: 'Обновите данные'
+                                halign: 'center'
+                        MDCard:
+                            size_hint: 0.485, None
+                            size: 100, 200
+                            pos_hint: {"center_x" : 0.5,"center_y": 0.5}
+                            elevation: 10
+                            padding: 25
+                            spacing: 25
+                            orientation: 'vertical'
+                            MDLabel:
+                                id: model
+                                text: 'Обновите данные'
+                                halign: 'center'
+                        MDCard:
+                            size_hint: 0.485, None
+                            size: 100, 200
+                            pos_hint: {"center_x" : 0.5,"center_y": 0.5}
+                            elevation: 10
+                            padding: 25
+                            spacing: 25
+                            orientation: 'vertical'
+                            MDLabel:
+                                id: ipnatdetector
+                                text: 'Обновите данные'
+                                halign: 'center'
             MDBottomNavigationItem:
                 name: 'Main_User'
                 text: 'Пользователи'
                 MDLabel:
                     text: 'Активность пользователей'
                     halign: 'center'
-#            MDBottomNavigationItem:
-#                name: 'Main_Log'
-#                text: 'Лог'
-#                MDLabel:
-#                    text: 'Лог'
-#                    halign: 'center'
             MDBottomNavigationItem:
                 name: 'Main_Settings'
                 text: 'Настройки'
-                
-
                 ScrollView:
-                    do_scroll_x: False
-                    do_scroll_y: True
-                    MDBoxLayout:
-                        orientation: 'vertical'
-                        MDCard:
-                            size: 500, 100
-                            elevation: 10
-                            padding: 25
-                            spacing: 25
-                            orientation: 'vertical'
-                            MDBoxLayout:
-                                orientation: 'horizontal'
-                                MDBoxLayout:
-                                    orientation: 'vertical'
-                                    MDIcon:
-                                        icon: "web"
-                                    MDLabel:
-                                        text: 'Глобальная сеть'
-                                MDRaisedButton:
-                                    pos_hint: {"center_x" : 0.9,"center_y": 0.5}
-                                    text: "Перейти к настрокам глобальной сети"
-                                    md_bg_color: 1, 0, 1, 1
-                                    on_release:
-                                        app.root.current = 'Internet'
-                        MDLabel:
-                            text: ''
-                            size_hint: None, None
-                        MDCard:
-                            size: 500, 100
-                            elevation: 10
-                            padding: 25
-                            spacing: 25
-                            orientation: 'vertical'
-                            MDBoxLayout:
-                                orientation: 'horizontal'
-                                MDBoxLayout:
-                                    orientation: 'vertical'
-                                    MDIcon:
-                                        icon: "router-network"
-                                    MDLabel:
-                                        text: 'Локальная сеть'
-                                        size_hint: None, None
-                                MDRaisedButton:
-                                    pos_hint: {"center_x" : 0.9,"center_y": 0.5}
-                                    text: "Перейти к настрокам локальной сети"
-                                    md_bg_color: 1, 0, 1, 1
-                                    on_release:
-                                        app.root.current = 'Local'
-                        MDLabel:
-                            text: ''
-                            size_hint: None, None
-                        MDCard:
-                            size: 500, 100
-                            elevation: 10
-                            padding: 25
-                            spacing: 25
-                            orientation: 'vertical'
-                            MDBoxLayout:
-                                orientation: 'horizontal'
-                                MDBoxLayout:
-                                    orientation: 'vertical'
-                                    MDIcon:
-                                        icon: "key"
-                                    MDLabel:
-                                        text: 'VPN'
-                                        size_hint: None, None
-                                MDRaisedButton:
-                                    pos_hint: {"center_x" : 0.9,"center_y": 0.5}
-                                    text: "Перейти к настрокам VPN"
-                                    md_bg_color: 1, 0, 1, 1
-                                    on_release:
-                                        app.root.current = 'VPN'
-                        MDLabel:
-                            text: ''
-                            size_hint: None, None
-                        MDCard:
-                            size: 500, 100
-                            elevation: 10
-                            padding: 25
-                            spacing: 25
-                            orientation: 'vertical'
-                            MDBoxLayout:
-                                orientation: 'horizontal'
-                                MDBoxLayout:
-                                    orientation: 'vertical'
-                                    MDIcon:
-                                        icon: "information"
-                                    MDLabel:
-                                        text: 'Обновление системы'
-                                        size_hint: None, None
-                                MDRaisedButton:
-                                    pos_hint: {"center_x" : 0.9,"center_y": 0.5}
-                                    text: "Перейти к обновлению системы"
-                                    md_bg_color: 1, 0, 1, 1
-                                    on_release:
-                                        app.root.current = 'Update'
+                    MDList:
+                        id: setting
+                        adaptive_height: True
+                        OneLineIconListItem:
+                            size: 100, 100
+                            text: 'Интернет'
+                            on_release:
+                                app.root.current = 'Internet'
+                                app.autoisp(*args,'value')
+                            IconLeftWidget:
+                                icon: "web"
+                                on_release:
+                                    app.root.current = 'Internet'
+                                    app.autoisp()
+                        OneLineIconListItem:
+                            size: 100, 100
+                            text: 'Локальная сеть'
+                            on_release:
+                                app.root.current = 'Local'
+                            IconLeftWidget:
+                                icon: "router-network"
+                                on_release:
+                                    app.root.current = 'Local'
+                        OneLineIconListItem:
+                            size: 100, 100
+                            text: 'Проброс портов'
+                            on_release:
+                                app.root.current = 'Forward'
+                            IconLeftWidget:
+                                icon: "share-outline"
+                                on_release:
+                                    app.root.current = 'Forward'
+                        OneLineIconListItem:
+                            size: 100, 100
+                            text: 'VPN'
+                            on_release:
+                                app.root.current = 'VPN'
+                            IconLeftWidget:
+                                icon: "key"
+                                on_release:
+                                    app.root.current = 'VPN'
+                        OneLineIconListItem:
+                            size: 100, 100
+                            text: 'Дополнительные настройки'
+                            on_release:
+                                app.root.current = 'Other'
+                            IconLeftWidget:
+                                icon: "tune"
+                                on_release:
+                                    app.root.current = 'Other'
+                        OneLineIconListItem:
+                            size: 100, 100
+                            text: 'Сведения и обновление'
+                            on_release:
+                                app.root.current = 'Update'
+                            IconLeftWidget:
+                                icon: "information"
+                                on_release:
+                                    app.root.current = 'Update'
 <Internet>:
-    MDLabel:
-        text:'Internet'
+    MDBoxLayout:
+        orientation: 'vertical'
+        MDToolbar:
+            title: 'MikroLite'
+            md_bg_color: .35, .35, 1, 1
+            specific_text_color: 1, 1, 1, 1
+        ScrollView:
+            MDList:
+                adaptive_height: True
+                OneLineIconListItem:
+                    size: 100, 50
+                    text: 'Назад'
+                    on_release:
+                        app.root.current = 'MainMenu'
+                    IconLeftWidget:
+                        icon: "arrow-left"
+                        on_release:
+                            app.root.current = 'MainMenu'
+                OneLineIconListItem:
+                    text: 'Выберите тип подключения'
+                    size: 100, 50
+                OneLineIconListItem:
+                    size: 100, 50
+                    text: 'Автоматический(DHCP)'
+                    MDLabel:
+                        text: 'Приоритет:'
+                        pos_hint: {'center_x': 1.1, 'center_y': .5}
+                    MDTextField:
+                        id: isp_dhcp_def
+                        hint_text: "1,2,3,4"
+                        width: 30
+                        size_hint_x: None
+                        pos_hint: {'center_x': 0.75, 'center_y': .5}
+                    MDSwitch:
+                        id: dhcp_isp_switch
+                        width: dp(48)
+                        pos_hint: {'center_x': .9, 'center_y': .5}
+                        on_active:
+                            app.autoisp(*args)
+                OneLineIconListItem:
+                    size: 100, 50
+                    text: 'Статический'
+                    on_release:
+                        app.root.current = 'static_isp'
+                OneLineIconListItem:
+                    size: 100, 50
+                    text: 'PPPoE'
+                    on_release:
+                        app.root.current = 'pppoe'
+                OneLineIconListItem:
+                    size: 100, 50
+                    text: 'LTE, WCDMA, GSM, USB-модем'
+                    MDLabel:
+                        text: 'Приоритет:'
+                        pos_hint: {'center_x': 1.1, 'center_y': .5}
+                    MDTextField:
+                        id: isp_lte_def
+                        hint_text: "1,2,3,4"
+                        width: 30
+                        size_hint_x: None
+                        pos_hint: {'center_x': 0.75, 'center_y': .5}
+                    MDSwitch:
+                        width: dp(48)
+                        pos_hint: {'center_x': .9, 'center_y': .5}
+                OneLineIconListItem:
+                    size: 100, 50
+                    text: ''
+                OneLineIconListItem:
+                    size: 100, 50
+                    text: 'Межсетевой экран(Firewall)'
+                    MDSwitch:
+                        width: dp(48)
+                        pos_hint: {'center_x': .5, 'center_y': .5}
+<dhcp_isp>:
+    MDBoxLayout:
+        orientation: 'vertical'
+        MDToolbar:
+            title: 'MikroLite'
+            md_bg_color: .35, .35, 1, 1
+            specific_text_color: 1, 1, 1, 1
+        ScrollView:
+            MDBoxLayout:
+                orientation:'vertical'
+                MDList:
+                    adaptive_height: True
+                    OneLineIconListItem:
+                        size: 100, 50
+                        text: 'Назад'
+                        on_release:
+                            app.root.current = 'Internet'
+                        IconLeftWidget:
+                            icon: "arrow-left"
+                            on_release:
+                                app.root.current = 'Internet'
+                MDBoxLayout:
+                    orientation:'horizontal'
+                    MDLabel:
+                        text: 'Интерфейс:'
+                        size_hint: None,None
+                    MDTextField:
+                        id: isp_port
+                        hint_text: "ether1,ether2...bridge1"
+                        font_size: 20
+                MDLabel:
+                    id: isp_ip
+                    text: 'Полученный ip: None'
+                    size_hint: None,None
+                MDRaisedButton:
+                    text: "Сохранить"
+                    md_bg_color: .35, .35, 1, 1
+                    font_size: 18
+                    on_release:
+                        app.root.current = 'Internet'
 
+<lte_isp>:
+    MDBoxLayout:
+        orientation: 'vertical'
+        MDToolbar:
+            title: 'MikroLite'
+            md_bg_color: .35, .35, 1, 1
+            specific_text_color: 1, 1, 1, 1
+        ScrollView:
+            MDList:
+                adaptive_height: True
+                OneLineIconListItem:
+                    size: 100, 50
+                    text: 'Назад'
+                    on_release:
+                        app.root.current = 'Internet'
+                    IconLeftWidget:
+                        icon: "arrow-left"
+                        on_release:
+                            app.root.current = 'Internet'
 <Local>:
-    MDLabel:
-        text:'Local'
+    MDBoxLayout:
+        orientation: 'vertical'
+        MDToolbar:
+            title: 'MikroLite'
+            md_bg_color: .35, .35, 1, 1
+            specific_text_color: 1, 1, 1, 1
+        ScrollView:
+            MDList:
+                adaptive_height: True
+                OneLineIconListItem:
+                    size: 100, 50
+                    text: 'Назад'
+                    on_release:
+                        app.root.current = 'MainMenu'
+                    IconLeftWidget:
+                        icon: "arrow-left"
+                        on_release:
+                            app.root.current = 'MainMenu'
+<Forward>:
+    MDBoxLayout:
+        orientation: 'vertical'
+        MDToolbar:
+            title: 'MikroLite'
+            md_bg_color: .35, .35, 1, 1
+            specific_text_color: 1, 1, 1, 1
+        ScrollView:
+            MDList:
+                adaptive_height: True
+                OneLineIconListItem:
+                    size: 100, 50
+                    text: 'Назад'
+                    on_release:
+                        app.root.current = 'MainMenu'
+                    IconLeftWidget:
+                        icon: "arrow-left"
+                        on_release:
+                            app.root.current = 'MainMenu'
 <VPN>:
-    MDLabel:
-        text:'VPN'
+    MDBoxLayout:
+        orientation: 'vertical'
+        MDToolbar:
+            title: 'MikroLite'
+            md_bg_color: .35, .35, 1, 1
+            specific_text_color: 1, 1, 1, 1
+        ScrollView:
+            MDList:
+                adaptive_height: True
+                OneLineIconListItem:
+                    size: 100, 50
+                    text: 'Назад'
+                    on_release:
+                        app.root.current = 'MainMenu'
+                    IconLeftWidget:
+                        icon: "arrow-left"
+                        on_release:
+                            app.root.current = 'MainMenu'
+<Other>:
+    MDBoxLayout:
+        orientation: 'vertical'
+        MDToolbar:
+            title: 'MikroLite'
+            md_bg_color: .35, .35, 1, 1
+            specific_text_color: 1, 1, 1, 1
+        ScrollView:
+            MDList:
+                adaptive_height: True
+                OneLineIconListItem:
+                    size: 100, 50
+                    text: 'Назад'
+                    on_release:
+                        app.root.current = 'MainMenu'
+                    IconLeftWidget:
+                        icon: "arrow-left"
+                        on_release:
+                            app.root.current = 'MainMenu'
 <Update>:
-    MDLabel:
-        text:'Update'
+    MDBoxLayout:
+        orientation: 'vertical'
+        MDToolbar:
+            title: 'MikroLite'
+            md_bg_color: .35, .35, 1, 1
+            specific_text_color: 1, 1, 1, 1
+        ScrollView:
+            MDList:
+                adaptive_height: True
+                OneLineIconListItem:
+                    size: 100, 50
+                    text: 'Назад'
+                    on_release:
+                        app.root.current = 'MainMenu'
+                    IconLeftWidget:
+                        icon: "arrow-left"
+                        on_release:
+                            app.root.current = 'MainMenu'
