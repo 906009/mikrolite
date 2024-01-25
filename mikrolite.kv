@@ -1,0 +1,103 @@
+#:kivy 2.0.0
+<Authorization>:
+    MDBoxLayout:
+        orientation: 'vertical'
+        MDCard:
+            size_hint: None, None
+            pos_hint: {"center_x" : 0.5,"center_y": 0.5}
+            elevation: 10
+            padding: 25
+            spacing: 25
+            orientation: 'vertical'
+        MDBoxLayout:
+            MDLabel:
+                text:''
+        MDBoxLayout:
+            MDLabel:
+                text:''
+        MDBoxLayout:
+            orientation: 'vertical'
+            size_hint: 0.5, 0.5
+            pos_hint: {'center_x':.5, 'center_y': .5}
+            MDBoxLayout:
+                orientation:'horizontal'
+                MDTextField:
+                    id: ip_dns
+                    hint_text: "IP адрес или DNS имя"
+                    font_size: root.height/20
+                MDTextField:
+                    id: portv
+                    hint_text: "Порт"
+                    font_size: root.height/20
+            MDTextField:
+                id: user
+                hint_text: "Имя пользователя"
+                font_size: root.height/20
+            MDTextField:
+                id: passwordv
+                hint_text: "Пароль"
+                font_size: root.height/20
+                password: True
+            MDRaisedButton:
+                text: "Подключиться"
+                md_bg_color: .35, .35, 1, 1
+                font_size: root.height/22
+                on_release:
+                    app.connector()
+                    app.root.current = 'MainMenu'
+        MDBoxLayout:
+            MDLabel:
+                text:''
+
+      # MDToolbar:
+      #     title: 'MikroLite'
+      #     md_bg_color: .35, .35, 1, 1
+      #     specific_text_color: 1, 1, 1, 1
+
+<MainMenu>:
+    BoxLayout:
+        orientation:'vertical'
+  #     MDToolbar:
+  #         title: 'MikroLite'
+  #         md_bg_color: .35, .35, 1, 1
+  #         specific_text_color: 1, 1, 1, 1
+
+        MDBottomNavigation:
+            panel_color: .35, .35, 1, 1
+            MDBottomNavigationItem:
+                name: 'Main_Status'
+                text: 'Статус'
+                canvas.before:
+                    Rectangle:
+                        source: "fon.jpg"
+                        size: self.size
+                        pos: self.pos
+                canvas:
+                    Color:
+                        rgba: (1,1,1,1)
+                    RoundedRectangle:
+                        size : self.width/2, self.height/2
+                        pos : self.center_x - self.width/4 , self.center_y - self.height/4.5
+                MDBoxLayout:
+                    orientation:'vertical'
+                    MDLabel:
+                        text: 'Пользователи'
+                        halign: 'center'
+            MDBottomNavigationItem:
+                name: 'Main_User'
+                text: 'Пользователи'
+                MDLabel:
+                    text: 'Пользователи'
+                    halign: 'center'
+            MDBottomNavigationItem:
+                name: 'Main_Log'
+                text: 'Лог'
+                MDLabel:
+                    text: 'Лог'
+                    halign: 'center'
+            MDBottomNavigationItem:
+                name: 'Main_Settings'
+                text: 'Настройки'
+                MDLabel:
+                    text: 'Настройки'
+                    halign: 'center'
