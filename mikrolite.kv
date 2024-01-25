@@ -21,10 +21,6 @@
                 hint_text: "IP адрес или DNS имя"
                 font_size: 20
             MDTextField:
-                id: portv
-                hint_text: "Порт"
-                font_size: 20
-            MDTextField:
                 id: user
                 hint_text: "Имя пользователя"
                 font_size: 20
@@ -160,7 +156,8 @@
                         spacing: 25
                         orientation: 'vertical'
                         MDLabel:
-                            text: 'Количество зверей'
+                            id: ipnatdetector
+                            text: 'Обновите данные'
                             halign: 'center'
                     MDLabel:
                         text: ''
@@ -184,17 +181,126 @@
                 name: 'Main_User'
                 text: 'Пользователи'
                 MDLabel:
-                    text: 'Пользователи'
+                    text: 'Активность пользователей'
                     halign: 'center'
-            MDBottomNavigationItem:
-                name: 'Main_Log'
-                text: 'Лог'
-                MDLabel:
-                    text: 'Лог'
-                    halign: 'center'
+#            MDBottomNavigationItem:
+#                name: 'Main_Log'
+#                text: 'Лог'
+#                MDLabel:
+#                    text: 'Лог'
+#                    halign: 'center'
             MDBottomNavigationItem:
                 name: 'Main_Settings'
                 text: 'Настройки'
-                MDLabel:
-                    text: 'Настройки'
-                    halign: 'center'
+                
+
+                ScrollView:
+                    do_scroll_x: False
+                    do_scroll_y: True
+                    MDBoxLayout:
+                        orientation: 'vertical'
+                        MDCard:
+                            size: 500, 100
+                            elevation: 10
+                            padding: 25
+                            spacing: 25
+                            orientation: 'vertical'
+                            MDBoxLayout:
+                                orientation: 'horizontal'
+                                MDBoxLayout:
+                                    orientation: 'vertical'
+                                    MDIcon:
+                                        icon: "web"
+                                    MDLabel:
+                                        text: 'Глобальная сеть'
+                                MDRaisedButton:
+                                    pos_hint: {"center_x" : 0.9,"center_y": 0.5}
+                                    text: "Перейти к настрокам глобальной сети"
+                                    md_bg_color: 1, 0, 1, 1
+                                    on_release:
+                                        app.root.current = 'Internet'
+                        MDLabel:
+                            text: ''
+                            size_hint: None, None
+                        MDCard:
+                            size: 500, 100
+                            elevation: 10
+                            padding: 25
+                            spacing: 25
+                            orientation: 'vertical'
+                            MDBoxLayout:
+                                orientation: 'horizontal'
+                                MDBoxLayout:
+                                    orientation: 'vertical'
+                                    MDIcon:
+                                        icon: "router-network"
+                                    MDLabel:
+                                        text: 'Локальная сеть'
+                                        size_hint: None, None
+                                MDRaisedButton:
+                                    pos_hint: {"center_x" : 0.9,"center_y": 0.5}
+                                    text: "Перейти к настрокам локальной сети"
+                                    md_bg_color: 1, 0, 1, 1
+                                    on_release:
+                                        app.root.current = 'Local'
+                        MDLabel:
+                            text: ''
+                            size_hint: None, None
+                        MDCard:
+                            size: 500, 100
+                            elevation: 10
+                            padding: 25
+                            spacing: 25
+                            orientation: 'vertical'
+                            MDBoxLayout:
+                                orientation: 'horizontal'
+                                MDBoxLayout:
+                                    orientation: 'vertical'
+                                    MDIcon:
+                                        icon: "key"
+                                    MDLabel:
+                                        text: 'VPN'
+                                        size_hint: None, None
+                                MDRaisedButton:
+                                    pos_hint: {"center_x" : 0.9,"center_y": 0.5}
+                                    text: "Перейти к настрокам VPN"
+                                    md_bg_color: 1, 0, 1, 1
+                                    on_release:
+                                        app.root.current = 'VPN'
+                        MDLabel:
+                            text: ''
+                            size_hint: None, None
+                        MDCard:
+                            size: 500, 100
+                            elevation: 10
+                            padding: 25
+                            spacing: 25
+                            orientation: 'vertical'
+                            MDBoxLayout:
+                                orientation: 'horizontal'
+                                MDBoxLayout:
+                                    orientation: 'vertical'
+                                    MDIcon:
+                                        icon: "information"
+                                    MDLabel:
+                                        text: 'Обновление системы'
+                                        size_hint: None, None
+                                MDRaisedButton:
+                                    pos_hint: {"center_x" : 0.9,"center_y": 0.5}
+                                    text: "Перейти к обновлению системы"
+                                    md_bg_color: 1, 0, 1, 1
+                                    on_release:
+                                        app.root.current = 'Update'
+<Internet>:
+    MDLabel:
+        text:'Internet'
+
+<Local>:
+    MDLabel:
+        text:'Local'
+<VPN>:
+    MDLabel:
+        text:'VPN'
+<Update>:
+    MDLabel:
+        text:'Update'
