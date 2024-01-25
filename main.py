@@ -21,9 +21,17 @@ class VPN(Screen):
     pass
 class Other(Screen):
     pass
+class Telegram(Screen):
+    pass
 class Update(Screen):
     pass
+class wireguard_client(Screen):
+    pass
 class wifi(Screen):
+    pass
+class VPN_servers(Screen):
+    pass
+class VPN_client(Screen):
     pass
 class Manager(ScreenManager):
     pass
@@ -36,16 +44,355 @@ class MikroLiteApp(MDApp):
         self.two = MDDropdownMenu(caller=self.root.get_screen('wifi').ids.wifi24_channel, items=menu_items, width_mult=4)
         menu_items = [{"text": f"{i}", "viewclass": "OneLineListItem","on_release": lambda x=f"{i}": self.menu_callback(x)} for i in range(36,148,4)]+[{"text": f"{i}", "viewclass": "OneLineListItem","on_release": lambda x=f"{i}": self.menu_callback(x)} for i in range(149,169,4)]
         self.five = MDDropdownMenu(caller=self.root.get_screen('wifi').ids.wifi5_channel, items=menu_items, width_mult=4)
+    def wireguard_all_traff(self):
+        if self.root.get_screen('wireguard_client').ids.wireguard_all_traff.text == 'Вкл':
+            res = self.api.get_resource('/system/script')
+            res.add(name='MikroLite_WG', source=":do command={/routing/table/add name=rkn fib;/ip/firewall/mangle/add comment=MikroLite_WG in-interface=bridge1 chain=prerouting action=mark-routing new-routing-mark=rkn passthrough=yes};:do command={/ip/route/add dst-address=0.0.0.0/0 gateway=wg1 routing-table=rkn comment=MikroLite_WG};:do command={/system script remove MikroLite_WG}")
+            script_to_run = res.get(name="MikroLite_WG")[0]
+            self.api.get_binary_resource('/').call('system/script/run', {"number": script_to_run["id"].encode("utf-8")})
+            self.root.get_screen('wireguard_client').ids.wireguard_all_traffic.text = 'Выкл'
+        else:
+            res = self.api.get_resource('/system/script')
+            res.add(name='MikroLite_WG_del', source=":do command={/routing/table/remove [find name=rkn];/ip/firewall/mangle/remove [find comment=MikroLite_WG];/ip/route/remove [find comment=MikroLite_WG]}:do command={/system script remove MikroLite_WG_del}")
+            script_to_run = res.get(name="MikroLite_WG_del")[0]
+            self.api.get_binary_resource('/').call('system/script/run', {"number": script_to_run["id"].encode("utf-8")})
+            self.root.get_screen('wireguard_client').ids.wireguard_all_traffic.text = 'Вкл'
+    def wiregucard_client_print(self):
+        index = str(self.ver).find("7.")
+        if index < 2:
+            res = self.api.get_resource('/interface/wireguard')
+            index = str(res.get()).find("listen-port")
+            a = index + 13
+            while a < len(str(res.get())):
+                if str(res.get())[a] == "'":
+                    break
+                else:
+                    a = a + 1
+            b = a + 1
+            while b < len(str(res.get())):
+                if str(res.get())[b] == "'":
+                    break
+                else:
+                    b = b + 1
+            port = str(res.get())[a + 1:b]
+            self.root.get_screen('wireguard_client').ids.wireguard_server.text = port
+            index = str(res.get()).find("public-key")
+            a = index + 11
+            while a < len(str(res.get())):
+                if str(res.get())[a] == "'":
+                    break
+                else:
+                    a = a + 1
+            b = a + 1
+            while b < len(str(res.get())):
+                if str(res.get())[b] == "'":
+                    break
+                else:
+                    b = b + 1
+            self.root.get_screen('wireguard_client').ids.wireguard_key.text = str(res.get())[a + 1:b]
+            ###########################
+            res = self.api.get_resource('/interface/wireguard/peers')
+            index = str(res.get()).find("public-key")
+            a = index + 11
+            while a < len(str(res.get())):
+                if str(res.get())[a] == "'":
+                    break
+                else:
+                    a = a + 1
+            b = a + 1
+            while b < len(str(res.get())):
+                if str(res.get())[b] == "'":
+                    break
+                else:
+                    b = b + 1
+            self.root.get_screen('wireguard_client').ids.wireguard_key_srv.text = str(res.get())[a + 1:b]
+            index = str(res.get()).find("endpoint-address")
+            a = index + 18
+            while a < len(str(res.get())):
+                if str(res.get())[a] == "'":
+                    break
+                else:
+                    a = a + 1
+            b = a + 1
+            while b < len(str(res.get())):
+                if str(res.get())[b] == "'":
+                    break
+                else:
+                    b = b + 1
+            self.root.get_screen('wireguard_client').ids.wireguard_end.text = str(res.get())[a + 1:b]
+            index = str(res.get()).find("endpoint-port")
+            a = index + 15
+            while a < len(str(res.get())):
+                if str(res.get())[a] == "'":
+                    break
+                else:
+                    a = a + 1
+            b = a + 1
+            while b < len(str(res.get())):
+                if str(res.get())[b] == "'":
+                    break
+                else:
+                    b = b + 1
+            self.root.get_screen('wireguard_client').ids.wireguard_end_port.text = str(res.get())[a + 1:b]
+    def wireguard_client(self):
+        index = str(self.ver).find("7.")
+        if index < 2:
+            if self.root.get_screen('wireguard_client').ids.wireguard_active_key.text == 'Вкл':
+                port = self.root.get_screen('wireguard_client').ids.wireguard_server.text
+                res = self.api.get_resource('/interface/wireguard')
+                index = str(res.get()).find("wg")
+                if index > 1:
+                    pass
+                else:
+                    res.add(listen_port=port)
+                res = self.api.get_resource('/interface/wireguard')
+                index = str(res.get()).find("public-key")
+                a = index + 11
+                while a < len(str(res.get())):
+                    if str(res.get())[a] == "'":
+                        break
+                    else:
+                        a = a + 1
+                b = a + 1
+                while b < len(str(res.get())):
+                    if str(res.get())[b] == "'":
+                        break
+                    else:
+                        b = b + 1
+                self.root.get_screen('wireguard_client').ids.wireguard_key.text = str(res.get())[a + 1:b]
+                index = str(res.get()).find("name")
+                a = index + 6
+                while a < len(str(res.get())):
+                    if str(res.get())[a] == "'":
+                        break
+                    else:
+                        a = a + 1
+                b = a + 1
+                while b < len(str(res.get())):
+                    if str(res.get())[b] == "'":
+                        break
+                    else:
+                        b = b + 1
+                inter = str(res.get())[a + 1:b]
+                addr = self.root.get_screen('wireguard_client').ids.wireguard_address.text
+                res = self.api.get_resource('/ip/address')
+                self.wireguard_inter_client = inter
+                res.add(interface=inter, address=addr, comment='MikroLite_WG')
+                self.root.get_screen('wireguard_client').ids.wireguard_active_key.text = 'Выкл'
+            else:
+                res = self.api.get_resource('/system/script')
+                res.add(name='MikroLite_WGD_del', source="/interface/wireguard/remove [find public-key="+str(res.get()).find(self.root.get_screen('wireguard_client').ids.wireguard_key.text)+";/ip/address/remove [find comment=MikroLite_WG];/system/script/remove [find name=MikroLite_WGD_del]")
+                script_to_run = res.get(name="MikroLite_WGD_del")[0]
+                self.api.get_binary_resource('/').call('system/script/run', {"number": script_to_run["id"].encode("utf-8")})
+                self.root.get_screen('wireguard_client').ids.wireguard_active.text = 'Выкл'
+        else:
+            self.root.get_screen('wireguard_client').ids.wireguard_server.text = 'Update ROS'
+    def wireguard_client_peer(self):
+        index = str(self.ver).find("7.")
+        if index < 2:
+            if self.root.get_screen('wireguard_client').ids.wireguard_active_key.text == 'Вкл':
+                servkey = self.root.get_screen('wireguard_client').ids.wireguard_key_srv.text
+                servip = self.root.get_screen('wireguard_client').ids.wireguard_end.text
+                servport = self.root.get_screen('wireguard_client').ids.wireguard_end_port.text
+                res = self.api.get_resource('/interface/wireguard/peers')
+                res.add(interface=self.wireguard_inter_client, public_key=servkey, endpoint_address=servip, endpoint_port=servport, allowed_address='0.0.0.0/0, ::/0')
+                self.root.get_screen('wireguard_client').ids.wireguard_active.text = 'Выкл'
+            else:
+                res = self.api.get_resource('/interface/wireguard/peers')
+                index = str(res.get()).find(self.root.get_screen('wireguard_client').ids.wireguard_key_srv.text)
+                stroka = str(res.get())[1:index]
+                index = str(stroka).rfind('id')
+                a = index + 4
+                while a < len(str(stroka)):
+                    if str(res.get())[a] == "'":
+                        break
+                    else:
+                        a = a + 1
+                b = a + 1
+                while b < len(str(stroka)):
+                    if str(res.get())[b] == "'":
+                        break
+                    else:
+                        b = b + 1
+                res.remove(id=str(stroka)[a + 1:b])
+                self.root.get_screen('wireguard_client').ids.wireguard_active.text = 'Вкл'
+        else:
+            self.root.get_screen('wireguard_client').ids.wireguard_key_srv.text = 'Update ROS'
+    def telegram_remover(self):
+        res = self.api.get_resource('/system/script')
+        index = str(res.get()).find("MikroLite_telegram")
+        if index > 1:
+            index = str(res.get()).find("MikroLite_telegram")
+            stroka = str(res.get())[1:index]
+            index = str(res.get()).rfind("'id'")
+            a = index + 5
+            while a < len(str(res.get())):
+                if str(res.get())[a] == "'":
+                    break
+                else:
+                    a = a + 1
+            b = a + 1
+            while b < len(str(res.get())):
+                if str(res.get())[b] == "'":
+                    break
+                else:
+                    b = b + 1
+            idis = str(stroka)[a + 1:b]
+            res.remove(id=idis)
+        res = self.api.get_resource('/system/schedule')
+        index = str(res.get()).find("MikroLite_telegram")
+        if index > 1:
+            index = str(res.get()).find("MikroLite_telegram")
+            stroka = str(res.get())[1:index]
+            index = str(res.get()).rfind("'name")
+            a = index
+            while a < len(str(res.get())):
+                if str(res.get())[a] == "'":
+                    break
+                else:
+                    a = a - 1
+            b = a + 1
+            while b < len(str(res.get())):
+                if str(res.get())[b] == "'":
+                    break
+                else:
+                    b = b - 1
+            idis = str(stroka)[b + 1:a]
+            res.remove(id=idis)
+        self.root.get_screen('Telegram').ids.telegram_token.text = ''
+        self.root.get_screen('Telegram').ids.telegram_chat.text = ''
+    def telegram(self):
+        token = self.root.get_screen('Telegram').ids.telegram_token.text
+        chat = self.root.get_screen('Telegram').ids.telegram_chat.text
+        res = self.api.get_resource('/system/script')
+        index = str(res.get()).find("MikroLite_telegram")
+        if index > 1:
+            index = str(res.get()).find("MikroLite_telegram")
+            stroka = str(res.get())[1:index]
+            index = str(res.get()).rfind("'id'")
+            a = index + 5
+            while a < len(str(res.get())):
+                if str(res.get())[a] == "'":
+                    break
+                else:
+                    a = a + 1
+            b = a + 1
+            while b < len(str(res.get())):
+                if str(res.get())[b] == "'":
+                    break
+                else:
+                    b = b + 1
+            idis = str(stroka)[a + 1:b]
+            res.remove(id=idis)
+            res.add(name='MikroLite_telegram', source=':local scheduleName "MikroLite_telegram";:local bot "' + token + '";:local ChatID "' + chat + '";:local startBuf [:toarray [/log find message~"logged in" || message~"router was rebooted without proper shutdown" || topics~"wireless" || topics~"ssh" || topics~"dhcp" || topics~"ftp" || topics~"firewall" || topics~"DoH" || topics~"smb" || topics~"pppoe" || topics~"link" || topics~"error" || topics~"warning" || topics~"telnet" || topics~"sstp" || topics~"pppoe" || topics~"pptp" || topics~"l2tp" || topics~"critical"]];:local removeThese {"interrupted"};:local TimeOFF [:toarray ("00:00","03:00")];if ([:len [/system scheduler find name="$scheduleName"]] = 0) do={/log warning "[LOGMON] ERROR: Schedule does not exist. Create schedule and edit script to match name"};:local name [/system  identity  get name];:local TimeNow [:pick [/system clock get time] 0 5];:local lastTime [/system scheduler get [find name="$scheduleName"] comment];:local currentTime;:local message;:local output;:local keepOutput false;:local logTrue;if ([:len $lastTime] = 0) do={:set keepOutput true};:foreach i in=$startBuf do={:local var true;:foreach j in=$removeThese do={if ([/log get $i message] ~ $j) do={:set var false}};if ($var=true) do={:set logTrue ($logTrue, $i)}};:foreach l in=$logTrue do={:set currentTime [ /log get $l time ];if ([:len $currentTime] = 8 ) do={:set currentTime ([:pick [/system clock get date] 0 11]." ".$currentTime)} else={if ([:len $currentTime] = 15 ) do={:set currentTime ([:pick $currentTime 0 6]."/".[:pick [/system clock get date] 7 11]." ".[:pick $currentTime 7 15])}};if ($keepOutput=true) do={:set message [/log get $l message];if ([/log get $l message] ~ "[0-F][0-F]:[0-F][0-F]:[0-F][0-F]:[0-F][0-F]:[0-F][0-F]:[0-F][0-F]") do={:foreach k in=[/ip dhcp-server lease find] do={:local mac [/ip dhcp-server lease get $k value-name=mac-address];if ([/log get $l message] ~ "$mac") do={:set message ($message . " / " . [/ip dhcp-server lease get $k value-name=comment])}}};:set output ($output.$currentTime." ".$message."%0A%0A")} else={:set message [/log get $l message];if ($currentTime = $lastTime) do={:set keepOutput true}}};if (([:len $output] > 0) and ($TimeOFF ~ $TimeNow)) do={/system scheduler set [find name="$scheduleName"] comment=$currentTime} else={if (([:len $output] > 0) and ($currentTime != $lastTime)) do={/system scheduler set [find name="$scheduleName"] comment=$currentTime;/tool fetch url="https://api.telegram.org/bot$bot/sendmessage?chat_id=$ChatID&text= $name : %0A$output" keep-result=no;} else={if (([:len $message] > 0) and ($currentTime != $lastTime)) do={/system scheduler set [find name="$scheduleName"] comment=$currentTime}}}')
+            res = self.api.get_resource('/system/schedule')
+            index = str(res.get()).find("MikroLite_telegram")
+            if index > 1:
+                index = str(res.get()).find("MikroLite_telegram")
+                stroka = str(res.get())[1:index]
+                index = str(res.get()).rfind("'name")
+                a = index
+                while a < len(str(res.get())):
+                    if str(res.get())[a] == "'":
+                        break
+                    else:
+                        a = a - 1
+                b = a - 1
+                while b < len(str(res.get())):
+                    if str(res.get())[b] == "'":
+                        break
+                    else:
+                        b = b - 1
+                idis = str(stroka)[b + 1:a]
+                res.remove(id=idis)
+                res.add(name='MikroLite_telegram', interval='1m', start_time='startup', on_event='MikroLite_telegram')
+            else:
+                res.add(name='MikroLite_telegram', interval='1m', start_time='startup', on_event='MikroLite_telegram')
+        else:
+            res.add(name='MikroLite_telegram', source=':local scheduleName "MikroLite_telegram";:local bot "'+token+'";:local ChatID "'+chat+'";:local startBuf [:toarray [/log find message~"logged in" || message~"router was rebooted without proper shutdown" || topics~"wireless" || topics~"ssh" || topics~"dhcp" || topics~"ftp" || topics~"firewall" || topics~"DoH" || topics~"smb" || topics~"pppoe" || topics~"link" || topics~"error" || topics~"warning" || topics~"telnet" || topics~"sstp" || topics~"pppoe" || topics~"pptp" || topics~"l2tp" || topics~"critical"]];:local removeThese {"interrupted"};:local TimeOFF [:toarray ("00:00","03:00")];if ([:len [/system scheduler find name="$scheduleName"]] = 0) do={/log warning "[LOGMON] ERROR: Schedule does not exist. Create schedule and edit script to match name"};:local name [/system  identity  get name];:local TimeNow [:pick [/system clock get time] 0 5];:local lastTime [/system scheduler get [find name="$scheduleName"] comment];:local currentTime;:local message;:local output;:local keepOutput false;:local logTrue;if ([:len $lastTime] = 0) do={:set keepOutput true};:foreach i in=$startBuf do={:local var true;:foreach j in=$removeThese do={if ([/log get $i message] ~ $j) do={:set var false}};if ($var=true) do={:set logTrue ($logTrue, $i)}};:foreach l in=$logTrue do={:set currentTime [ /log get $l time ];if ([:len $currentTime] = 8 ) do={:set currentTime ([:pick [/system clock get date] 0 11]." ".$currentTime)} else={if ([:len $currentTime] = 15 ) do={:set currentTime ([:pick $currentTime 0 6]."/".[:pick [/system clock get date] 7 11]." ".[:pick $currentTime 7 15])}};if ($keepOutput=true) do={:set message [/log get $l message];if ([/log get $l message] ~ "[0-F][0-F]:[0-F][0-F]:[0-F][0-F]:[0-F][0-F]:[0-F][0-F]:[0-F][0-F]") do={:foreach k in=[/ip dhcp-server lease find] do={:local mac [/ip dhcp-server lease get $k value-name=mac-address];if ([/log get $l message] ~ "$mac") do={:set message ($message . " / " . [/ip dhcp-server lease get $k value-name=comment])}}};:set output ($output.$currentTime." ".$message."%0A%0A")} else={:set message [/log get $l message];if ($currentTime = $lastTime) do={:set keepOutput true}}};if (([:len $output] > 0) and ($TimeOFF ~ $TimeNow)) do={/system scheduler set [find name="$scheduleName"] comment=$currentTime} else={if (([:len $output] > 0) and ($currentTime != $lastTime)) do={/system scheduler set [find name="$scheduleName"] comment=$currentTime;/tool fetch url="https://api.telegram.org/bot$bot/sendmessage?chat_id=$ChatID&text= $name : %0A$output" keep-result=no;} else={if (([:len $message] > 0) and ($currentTime != $lastTime)) do={/system scheduler set [find name="$scheduleName"] comment=$currentTime}}}')
+            res = self.api.get_resource('/system/schedule')
+            index = str(res.get()).find("MikroLite_telegram")
+            if index > 1:
+                index = str(res.get()).find("MikroLite_telegram")
+                stroka = str(res.get())[1:index]
+                index = str(res.get()).rfind("'name")
+                a = index
+                while a < len(str(res.get())):
+                    if str(res.get())[a] == "'":
+                        break
+                    else:
+                        a = a - 1
+                b = a - 1
+                while b < len(str(res.get())):
+                    if str(res.get())[b] == "'":
+                        break
+                    else:
+                        b = b - 1
+                idis = str(stroka)[b+1:a]
+                res.remove(id=idis)
+                res.add(name='MikroLite_telegram', interval='1m', start_time='startup', on_event='MikroLite_telegram')
+            else:
+                res.add(name='MikroLite_telegram',interval='1m',start_time='startup' , on_event='MikroLite_telegram')
+    def update_os(self):
+        if self.root.get_screen('Update').ids.os_updater.text == 'Установить':
+            res = self.api.get_resource('/system/script')
+            index = str(res.get()).find("MikroLite_updater")
+            if index > 1:
+                script_to_run = res.get(name="MikroLite_updater")[0]
+                self.api.get_binary_resource('/').call('system/script/run', {"number": script_to_run["id"].encode("utf-8")})
+            else:
+                res.add(name='MikroLite_updater', source="/system/package/update/download;:delay 5s;:do command={/system/script add name=MikroLite_firmware source={/system/script/remove [find name=MikroLite_updater];/system/schedule/remove [find name=MikroLite_firmware];/system/routerboard/upgrade;/system/script add name=MikroLite_up_del source={/system/script/remove [find name=MikroLite_firmware];/system/schedule/remove [find name=MikroLite_up_del];/system/script/remove [find name=MikroLite_up_del]};/system/schedule add name=MikroLite_up_del interval=00:00:30 start-time=startup on-event=MikroLite_up_del;/system reboot;}};:do command={/system/schedule add name=MikroLite_firmware interval=00:00:30 start-time=startup on-event=MikroLite_firmware};/system reboot")
+                script_to_run = res.get(name="MikroLite_updater")[0]
+                self.api.get_binary_resource('/').call('system/script/run',{"number": script_to_run["id"].encode("utf-8")})
+        else:
+            res = self.api.get_resource('/system/script')
+            index = str(res.get()).find("MikroLite_static")
+            if index > 1:
+                script_to_run = res.get(name="MikroLite_update_checker")[0]
+                self.api.get_binary_resource('/').call('system/script/run',{"number": script_to_run["id"].encode("utf-8")})
+            else:
+                res.add(name='MikroLite_update_checker', source=":do command={/system/package/update/check-for-updates};:do command={/system script remove MikroLite_update_checker}")
+                script_to_run = res.get(name="MikroLite_update_checker")[0]
+                self.api.get_binary_resource('/').call('system/script/run',{"number": script_to_run["id"].encode("utf-8")})
+            res = self.api.get_resource('/system/package/update')
+            index = str(res.get()).find("New version")
+            if index > 1:
+                index = str(res.get()).find("latest-version")
+                a = index + 18
+                while a < len(str(res.get())):
+                    if str(res.get())[a] == "'":
+                        break
+                    else:
+                        a = a + 1
+                new = str(res.get())[index:a]
+                self.root.get_screen('Update').ids.os_update.text = 'Доступно обновление ' + new
+                self.root.get_screen('Update').ids.os_updater.text = 'Установить'
+    def update_have(self):
+        res = self.api.get_resource('/system/package/update')
+        index = str(res.get()).find("New version")
+        if index > 1:
+            index = str(res.get()).find("latest-version")
+            a = index + 18
+            while a < len(str(res.get())):
+                if str(res.get())[a] == "'":
+                    break
+                else:
+                    a = a + 1
+            new = str(res.get())[index:a]
+            self.root.get_screen('Update').ids.os_update.text = 'Доступно обновление '+new
+            self.root.get_screen('Update').ids.os_updater.text = 'Установить'
     def menu_callback(self, text_item):
         print(text_item)
         if int(text_item) < 16:
             x = int(text_item)
-            self.chastota_24.text = 2407 + 5 * x
+            self.chastota_24 = 2407 + 5 * x
+            self.root.get_screen('wifi').ids.wifi24_channel.text = str(text_item)
         if int(text_item) > 16 and int(text_item) < 170:
             x = int(text_item)
-            self.chastota_5.text = 5000 + 5 * x
+            self.chastota_5 = 5000 + 5 * x
+            self.root.get_screen('wifi').ids.wifi5_channel.text = str(text_item)
     def standart(self):
-        self.connection = routeros_api.RouterOsApiPool('192.168.88.1', username='Danil_64', password='66236623', port=8728, use_ssl=False,
+        self.connection = routeros_api.RouterOsApiPool('192.168.88.1', username='admin', password='', port=8728, use_ssl=False,
                                                        ssl_verify=False, ssl_verify_hostname=False, ssl_context=None,
                                                        plaintext_login=True)
         self.api = self.connection.get_api()
@@ -59,6 +406,34 @@ class MikroLiteApp(MDApp):
                                                        plaintext_login=True)
         self.api = self.connection.get_api()
         return self.api, self.connection
+    def pppoe_connecting(self):
+        res = self.api.get_resource('/interface/pppoe-client')
+        index = str(res.get()).find("id")
+        if index > 1:
+            a = index + 6
+            b = a
+            while b < len(str(res.get())):
+                if str(res.get())[b] == "'":
+                    break
+                else:
+                    b = b + 1
+            idis = str(res.get())[a:b]
+            res.set(id=idis, user=self.root.get_screen('PPPoE').ids.pppoe_login.text, password=self.root.get_screen('PPPoE').ids.pppoe_password.text, use_peer_dns='yes')
+        else:
+            res.add(user=self.root.get_screen('PPPoE').ids.pppoe_login.text, password=self.root.get_screen('PPPoE').ids.pppoe_password.text, use_peer_dns='yes')
+    def pppoe_remover(self):
+        res = self.api.get_resource('/interface/pppoe-client')
+        index = str(res.get()).find("id")
+        if index > 1:
+            a = index + 6
+            b = a
+            while b < len(str(res.get())):
+                if str(res.get())[b] == "'":
+                    break
+                else:
+                    b = b + 1
+            idis = str(res.get())[a:b]
+            res.remove(id=idis)
     def static(self):
         address = self.root.get_screen('Static').ids.static_address.text
         gateway = self.root.get_screen('Static').ids.static_gateway.text
@@ -67,12 +442,47 @@ class MikroLiteApp(MDApp):
         if index > 1:
             script_to_run = res.get(name="MikroLite_static")[0]
             self.api.get_binary_resource('/').call('system/script/run', {"number": script_to_run["id"].encode("utf-8")})
+            self.sm.current = 'Authorization'
+            self.connection.disconnect()
         else:
             res.add(name='MikroLite_static', source=":do command={/ip/address set [find interface=ether1] address="+address+"} on-error={/ip/address add interface=ether1 address="+address+"};:do command={/ip/route remove [find gateway="+gateway+"]};:do command={/ip/route add gateway="+gateway+" dst-address=0.0.0.0/0};:do command={/system script remove MikroLite_static}")
             script_to_run = res.get(name="MikroLite_static")[0]
             self.api.get_binary_resource('/').call('system/script/run', {"number": script_to_run["id"].encode("utf-8")})
+            self.sm.current = 'Authorization'
+            self.connection.disconnect()
     def static_remove(self):
-        pass
+        res = self.api.get_resource('/ip/address')
+        index = str(res.get()).find("ether1")
+        if index > 1:
+            stroka = str(res.get())[:index]
+            index1 = str(stroka.rfind("id"))
+            stroka = str(stroka)[index1:index]
+            a = index1 + 6
+            b = a
+            while b < len(str(stroka)):
+                if str(stroka)[b] == "'":
+                    break
+                else:
+                    b = b + 1
+            idis = str(stroka)[a:b]
+            res.remove(id=idis)
+            self.root.get_screen('Static').ids.static_address.text = ''
+        res = self.api.get_resource('/ip/route')
+        index = str(res.get()).find("%ether1")
+        if index > 1:
+            stroka = str(res.get())[:index]
+            index1 = str(stroka.rfind("id"))
+            stroka = str(stroka)[index1:index]
+            a = index1 + 6
+            b = a
+            while b < len(str(stroka)):
+                if str(stroka)[b] == "'":
+                    break
+                else:
+                    b = b + 1
+            idis = str(stroka)[a:b]
+            res.remove(id=idis)
+            self.root.get_screen('Static').ids.static_gateway.text = ''
     def twowifivkl(self):
         res = self.api.get_resource('/interface/wireless')
         index = str(res.get()).find("'default-name': 'wlan1'")
@@ -96,21 +506,21 @@ class MikroLiteApp(MDApp):
                 self.root.get_screen('wifi').ids.wifi_24.text = 'Выкл'
     def twowidth(self):
         width = self.root.get_screen('wifi').ids.wifi_24_XX.text
-        if str(width).find("20/40") > 1:
+        if str(width).find("20/40") > -1:
             self.root.get_screen('wifi').ids.wifi_24_XX.text = '20mhz'
-        elif str(width).find("20") > 1:
+        elif str(width).find("20") > -1:
             self.root.get_screen('wifi').ids.wifi_24_XX.text = '20/40mhz-XX'
     def fivewidth(self):
         width = self.root.get_screen('wifi').ids.wifi_5_XX.text
-        if str(width).find("20/40/80") > 1:
+        if str(width).find("20/40/80") > -1:
             self.root.get_screen('wifi').ids.wifi_5_XX.text = '20mhz'
-        elif str(width).find("20/40") > 1:
+        elif str(width).find("20/40") > -1:
             self.root.get_screen('wifi').ids.wifi_5_XX.text = '20/40/80mhz-XXXX'
-        elif str(width).find("20") > 1:
+        elif str(width).find("20") > -1:
             self.root.get_screen('wifi').ids.wifi_5_XX.text = '20/40mhz-XX'
     def twowifi(self):
         ssid = self.root.get_screen('wifi').ids.wifi24_ssid.text
-        width = self.root.get_screen('wifi').wifi_24_XX.text
+        width = self.root.get_screen('wifi').ids.wifi_24_XX.text
         res = self.api.get_resource('/system/script')
         index = str(res.get()).find("MikroLite_wifi_24")
         if index > 0:
@@ -119,14 +529,14 @@ class MikroLiteApp(MDApp):
             self.sm.current = 'Authorization'
             self.connection.disconnect()
         else:
-            res.add(name='MikroLite_wifi_24', source=":do command={/interface wireless set [find default-name=wlan1] ssid="+ssid+" channel-width="+width+" frequency="+self.chastota_24+" mode=ap-bridge band=2ghz-b/g/n country=no_country_set installation=indoor wmm-support=enabled frequency-mode=superchannel hw-protection-mode=rts-cts hw-retries=15 adaptive-noise-immunity=ap-and-client-mode};/system script remove MikroLite_wifi_24}")
+            res.add(name='MikroLite_wifi_24', source=":do command={/interface wireless set [find default-name=wlan1] ssid="+str(ssid)+" channel-width="+str(width)+" frequency="+str(self.chastota_24)+" mode=ap-bridge band=2ghz-b/g/n country=no_country_set installation=indoor wmm-support=enabled frequency-mode=superchannel hw-protection-mode=rts-cts hw-retries=15 adaptive-noise-immunity=ap-and-client-mode};/system script remove MikroLite_wifi_24}")
             script_to_run = res.get(name="MikroLite_wifi_24")[0]
             self.api.get_binary_resource('/').call('system/script/run', {"number": script_to_run["id"].encode("utf-8")})
             self.sm.current = 'Authorization'
             self.connection.disconnect()
     def fivewifi(self):
         ssid = self.root.get_screen('wifi').ids.wifi5_ssid.text
-        width = self.root.get_screen('wifi').wifi_5_XX.text
+        width = self.root.get_screen('wifi').ids.wifi_5_XX.text
         res = self.api.get_resource('/system/script')
         index = str(res.get()).find("MikroLite_wifi_5")
         if index > 0:
@@ -135,7 +545,7 @@ class MikroLiteApp(MDApp):
             self.sm.current = 'Authorization'
             self.connection.disconnect()
         else:
-            res.add(name='MikroLite_wifi_5', source=":do command={/interface wireless set [find default-name=wlan2] ssid="+ssid+" channel-width="+width+" frequency="+self.chastota_5+" mode=ap-bridge band=5ghz-a/n/ac country=no_country_set installation=indoor wmm-support=enabled frequency-mode=superchannel hw-protection-mode=rts-cts hw-retries=15 adaptive-noise-immunity=ap-and-client-mode};/system script remove MikroLite_wifi_5}")
+            res.add(name='MikroLite_wifi_5', source=":do command={/interface wireless set [find default-name=wlan2] ssid="+str(ssid)+" channel-width="+str(width)+" frequency="+str(self.chastota_5)+" mode=ap-bridge band=5ghz-a/n/ac country=no_country_set installation=indoor wmm-support=enabled frequency-mode=superchannel hw-protection-mode=rts-cts hw-retries=15 adaptive-noise-immunity=ap-and-client-mode};/system script remove MikroLite_wifi_5}")
             script_to_run = res.get(name="MikroLite_wifi_5")[0]
             self.api.get_binary_resource('/').call('system/script/run', {"number": script_to_run["id"].encode("utf-8")})
             self.sm.current = 'Authorization'
@@ -392,27 +802,74 @@ class MikroLiteApp(MDApp):
                 if str(route_priority) == '':
                     route_priority = '1'
                 res.add(interface='ether1', default_route_distance=route_priority, disabled='no')
-    def resour_wifi(self):
-
-    def resour(self):
-
-        #wifi пароль
-        res = self.api.get_resource('/interface/wireless/security-profiles')
-        index = str(res.get()).find("default")
+    def resour_pppoe(self):
+        res = self.api.get_resource('/interface/pppoe-client')
+        index = str(res.get()).find("running")
         if index > 1:
-            a = index
-            while a > 1:
-                if str(res.get())[a] == "id":
-                    break
-                else:
-                    a = a - 1
-            b = a + 8
+            a = index + 11
+            b = a
             while b < len(str(res.get())):
-                if str(res.get())[b] == "}":
+                if str(res.get())[b] == "'":
                     break
                 else:
                     b = b + 1
-            stroka = str(res.get())[a+1:b]
+            if str(res.get())[a:b] == 'true':
+                self.root.get_screen('PPPoE').ids.pppoe_status.text = 'Статус: подключено'
+            index = str(res.get()).find("user")
+            a = index + 8
+            b = a
+            while b < len(str(res.get())):
+                if str(res.get())[b] == "'":
+                    break
+                else:
+                    b = b + 1
+            self.root.get_screen('PPPoE').ids.pppoe_login.text = str(res.get())[a:b]
+            index = str(res.get()).find("password")
+            a = index + 12
+            b = a
+            while b < len(str(res.get())):
+                if str(res.get())[b] == "'":
+                    break
+                else:
+                    b = b + 1
+            self.root.get_screen('PPPoE').ids.pppoe_password.text = str(res.get())[a:b]
+    def resour_static(self):
+        res = self.api.get_resource('/ip/address')
+        index = str(res.get()).find("ether1")
+        if index > 1:
+            stroka = str(res.get())[:index]
+            index1 = str(stroka).rfind("address")
+            stroka = str(stroka)[index1:]
+            a = index1 + 11
+            b = a
+            while b < len(str(stroka)):
+                if str(stroka)[b] == "'":
+                    break
+                else:
+                    b = b + 1
+            self.root.get_screen('Static').ids.static_address.text = str(stroka)[a:b]
+        res = self.api.get_resource('/ip/route')
+        index = str(res.get()).find("%ether1")
+        if index > 1:
+            stroka = str(res.get())[:index]
+            index1 = str(stroka).rfind("gateway")
+            stroka = str(stroka)[index1:index]
+            a = index1 + 11
+            b = a
+            while b < len(str(stroka)):
+                if str(stroka)[b] == "'":
+                    break
+                else:
+                    b = b + 1
+            self.root.get_screen('Static').ids.static_gateway.text = str(stroka)[a:b]
+    def resour_wifi(self):
+        # wifi пароль
+        res = self.api.get_resource('/interface/wireless/security-profiles')
+        index = str(res.get()).find("default")
+        if index > 1:
+            a = str(res.get()).find("group-ciphers")
+            b = str(res.get()).find("supplicant")
+            stroka = str(res.get())[a:b]
             index = str(stroka).find("wpa-pre-shared-key")
             a = index + 22
             while a < len(str(stroka)):
@@ -435,23 +892,7 @@ class MikroLiteApp(MDApp):
                 self.root.get_screen('wifi').ids.wifi_password.text = wpa
             else:
                 self.root.get_screen('wifi').ids.wifi_password.text = wpa2
-        #Получение модели
-        res = self.api.get_resource('/system/resource')
-        index = str(res.get()).find("board-name")
-        a = index + 14
-        while a < len(str(res.get())):
-            if str(res.get())[a] == "'":
-                break
-            else:
-                a = a + 1
-        model = (str(res.get())[index + 14:a])
-        self.root.get_screen('MainMenu').ids.model.text = 'Модель:\n'+(str(res.get())[index + 14:a])
-        if model == 'x86':
-            res = self.api.get_resource('/ip/cloud')
-        else:
-            res = self.api.get_resource('/ip/cloud')
-            res.set(ddns_enabled='yes')
-        #WiFi 2.4Ghz
+        # WiFi 2.4Ghz
         res = self.api.get_resource('/interface/wireless')
         index = str(res.get()).find("'default-name': 'wlan1'")
         if index > 0:
@@ -475,7 +916,7 @@ class MikroLiteApp(MDApp):
                     if str(res.get())[a] == "'":
                         break
                     else:
-                        a = a + 1
+                                a = a + 1
                 channel = int(str(res.get())[index + 13:a], base=10)
                 if channel == 2412:
                     self.root.get_screen('wifi').ids.wifi24_channel.text = '1'
@@ -618,14 +1059,15 @@ class MikroLiteApp(MDApp):
                     else:
                         a = a + 1
                 self.root.get_screen('wifi').ids.wifi_5_XX.text = str(res.get())[index + 17:a]
-        #Сервер NTP
+    def resour_localnet(self):
+        # Сервер NTP
         res = self.api.get_resource('/system/ntp/server')
         index = str(res.get()).find("'enabled': 'true'")
         if index > 0:
             self.root.get_screen('Local').ids.local_ntp_srv.text = 'Выкл'
         else:
             self.root.get_screen('Local').ids.local_ntp_srv.text = 'Вкл'
-        #Получение NTP серверов
+        # Получение NTP серверов
         res = self.api.get_resource('/system/ntp/client')
         res.set(enabled='true')
         index = str(res.get()).find("servers")
@@ -638,13 +1080,13 @@ class MikroLiteApp(MDApp):
                 a = a + 1
         if stroka != "''":
             self.root.get_screen('Local').ids.local_ntp.text = str(res.get())[index + 11:a]
-        #Получение DoH
+        # Получение DoH
         res = self.api.get_resource('/ip/dns')
         res.set(allow_remote_requests='true')
         index = str(res.get()).find("ordns")
         if index > 0:
             self.root.get_screen('Local').ids.local_doh.text = 'Выкл'
-        #Получение dns серверов
+        # Получение dns серверов
         res = self.api.get_resource('/ip/dns')
         index = str(res.get()).find("servers")
         a = index + 11
@@ -654,12 +1096,12 @@ class MikroLiteApp(MDApp):
             else:
                 a = a + 1
         self.root.get_screen('Local').ids.local_dns.text = str(res.get())[index + 11:a]
-        #Перехват dns запросов
+        # Перехват dns запросов
         res = self.api.get_resource('/ip/firewall/nat')
         index = str(res.get()).find("MikroLite_dns_interception")
         if index > 0:
             self.root.get_screen('Local').ids.local_perehvat.text = 'Выкл'
-        #Lease-time
+        # Lease-time
         res = self.api.get_resource('/ip/dhcp-server')
         index = str(res.get()).find("id")
         if index > 1:
@@ -693,7 +1135,7 @@ class MikroLiteApp(MDApp):
                 second = '00'
             stroka = day + hours + ':' + minuts + ':' + second
             self.root.get_screen('Local').ids.ipv4_local_time.text = stroka
-        #Local Ip
+        # Local Ip
         res = self.api.get_resource('/ip/address')
         index = str(res.get()).find("bridge")
         if index > 1:
@@ -703,19 +1145,9 @@ class MikroLiteApp(MDApp):
                     break
                 else:
                     a = a - 1
-            b = a + 8
-            while b < len(str(res.get())):
-                if str(res.get())[b] == "'":
-                    break
-                else:
-                    b = b + 1
-            idis = str(res.get())[a + 8:b]
-            while b < len(str(res.get())):
-                if str(res.get())[b] == "}":
-                    break
-                else:
-                    b = b + 1
-            stroka = str(res.get())[a+1:b]
+            ll = len(str(res.get()))
+            index = str(res.get()[a:ll]).find("network")
+            stroka = str(res.get())[a + 1:index]
             index = stroka.find("address")
             b = index + 11
             while b < len(stroka):
@@ -724,6 +1156,7 @@ class MikroLiteApp(MDApp):
                 else:
                     b = b + 1
             self.root.get_screen('Local').ids.ipv4_local_ip.text = stroka[index + 11:b]
+    def resour_ispnet(self):
         #DHCP_client
         res = self.api.get_resource('/ip/dhcp-client')
         index = str(res.get()).find("id")
@@ -750,6 +1183,51 @@ class MikroLiteApp(MDApp):
             self.root.get_screen('Internet').ids.isp_dhcp_button.text = 'Выкл'
         else:
             self.root.get_screen('Internet').ids.isp_dhcp_button.text = 'Вкл'
+        # Firewall
+        res = self.api.get_resource('/ip/firewall/filter')
+        index1 = str(res.get()).find("defconf: drop invalid")
+        if index1 > 1:
+            self.root.get_screen('Internet').ids.firewall.text = 'Удалить заводской\nfirewall'
+        res = self.api.get_resource('/ip/firewall/filter')
+        index = str(res.get()).find("id")
+        if index > 1:
+            if index1 < 1:
+                self.root.get_screen('Internet').ids.firewall.text = 'Выкл'
+        else:
+            self.root.get_screen('Internet').ids.firewall.text = 'Вкл'
+    def resour(self):
+        #Получение модели
+        res = self.api.get_resource('/system/resource')
+        index = str(res.get()).find("board-name")
+        a = index + 14
+        while a < len(str(res.get())):
+            if str(res.get())[a] == "'":
+                break
+            else:
+                a = a + 1
+        model = (str(res.get())[index + 14:a])
+        index = str(res.get()).find("cpu")
+        a = index + 7
+        while a < len(str(res.get())):
+            if str(res.get())[a] == "'":
+                break
+            else:
+                a = a + 1
+        arch = (str(res.get())[index + 7:a])
+        self.root.get_screen('MainMenu').ids.model.text = 'Модель:\n'+model+'\nАрхитектура:\n'+arch
+        if model == 'x86'or model == 'CHR':
+            pass
+        else:
+            res = self.api.get_resource('/ip/cloud')
+            res.set(ddns_enabled='yes')
+            index = str(res.get()).find("dns-name")
+            a = index + 12
+            while a < len(str(res.get())):
+                if str(res.get())[a] == "'":
+                    break
+                else:
+                    a = a + 1
+            self.root.get_screen('Other').ids.ddns_router.text = (str(res.get())[index + 12:a])
         #LTE
         a = 1
         if model == 'hAP lite':
@@ -788,18 +1266,6 @@ class MikroLiteApp(MDApp):
                 self.root.get_screen('Internet').ids.isp_lte_def.text = str(res.get())[index + 26:a]
         else:
             self.root.get_screen('Internet').ids.vsegda_activno.text = 'Не имеется'
-        #Firewall
-        res = self.api.get_resource('/ip/firewall/filter')
-        index1 = str(res.get()).find("defconf: drop invalid")
-        if index1 > 1:
-            self.root.get_screen('Internet').ids.firewall.text = 'Удалить заводской\nfirewall'
-        res = self.api.get_resource('/ip/firewall/filter')
-        index = str(res.get()).find("id")
-        if index > 1:
-            if index1 < 1:
-                self.root.get_screen('Internet').ids.firewall.text = 'Выкл'
-        else:
-            self.root.get_screen('Internet').ids.firewall.text = 'Вкл'
         #Опора ####################################################################################################################
         res = self.api.get_resource('/system/resource')
         #Версия ОС
@@ -810,8 +1276,24 @@ class MikroLiteApp(MDApp):
                 break
             else:
                 a = a + 1
-        self.root.get_screen('MainMenu').ids.resource.text = 'Версия RouterOS:\n'+(str(res.get())[index+11:a])
+        self.ver = str(res.get())[index+11:a]
+        if model == 'CHR' or model == 'x86':
+            prog = self.ver
+        else:
+            res = self.api.get_resource('/system/routerboard')
+            index = str(res.get()).find("current-firmware")
+            a = index + 20
+            while a < len(str(res.get())):
+                if str(res.get())[a] == "'":
+                    break
+                else:
+                    a = a + 1
+            prog = str(res.get())[index+20:a]
+        self.root.get_screen('MainMenu').ids.resource.text = 'Версия RouterOS:\n'+self.ver+'\nВерсия прошивки:\n'+prog
+        self.root.get_screen('Update').ids.os_verision.text = 'Версия ОС: '+self.ver
+        self.root.get_screen('Update').ids.os_firmware.text = 'Версия прошивки: ' + prog
         #Получение загрузки CPU
+        res = self.api.get_resource('/system/resource')
         index = str(res.get()).find("cpu-load")
         a = index + 12
         while a < len(str(res.get())):
@@ -819,7 +1301,34 @@ class MikroLiteApp(MDApp):
                 break
             else:
                 a = a + 1
-        self.root.get_screen('MainMenu').ids.loadcpu.text = 'Загрузка CPU:\n'+(str(res.get())[index + 12:a])+'%'
+        cpu = (str(res.get())[index + 12:a])
+        index = str(res.get()).find("total-memory")
+        b = index + 13
+        while b < len(str(res.get())):
+            if str(res.get())[b] == "'":
+                break
+            else:
+                b = b + 1
+        a = index + 16
+        while a < len(str(res.get())):
+            if str(res.get())[a] == "'":
+                break
+            else:
+                a = a + 1
+        tot = (str(res.get())[b+1:a])
+        tot = ('%.1f' % (float(tot)/1048576))
+        index = str(res.get()).find("free-memory")
+        a = index + 15
+        while a < len(str(res.get())):
+            if str(res.get())[a] == "'":
+                break
+            else:
+                a = a + 1
+        used = (str(res.get())[index + 15:a])
+        used = ('%.1f' % (int(used)/1048576))
+        used = float(tot) - float(used)
+        used = ('%.1f' % used)
+        self.root.get_screen('MainMenu').ids.loadcpu.text = 'Загрузка CPU:\n'+cpu+'%\nЗагрузка ОЗУ:\n'+str(used)+'МБ/'+str(tot)+'МБ'
         #Определение ip или NAT
         res = self.api.get_resource('/ip/cloud')
         index = str(res.get()).find("Router is behind a NAT")
@@ -872,8 +1381,12 @@ class MikroLiteApp(MDApp):
         self.sm.add_widget(Forward(name='Forward'))
         self.sm.add_widget(Static(name='Static'))
         self.sm.add_widget(PPPoE(name='PPPoE'))
+        self.sm.add_widget(Telegram(name='Telegram'))
         self.sm.add_widget(Other(name='Other'))
         self.sm.add_widget(wifi(name='wifi'))
+        self.sm.add_widget(wireguard_client(name='wireguard_client'))
+        self.sm.add_widget(VPN_servers(name='VPN_servers'))
+        self.sm.add_widget(VPN_client(name='VPN_client'))
         self.sm.add_widget(VPN(name='VPN'))
         self.sm.add_widget(Update(name='Update'))
         self.sm.current = 'Authorization'

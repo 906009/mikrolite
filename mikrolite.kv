@@ -144,28 +144,34 @@
                             text: 'Интернет'
                             on_release:
                                 app.root.current = 'Internet'
+                                app.resour_ispnet()
                             IconLeftWidget:
                                 icon: "web"
                                 on_release:
                                     app.root.current = 'Internet'
+                                    app.resour_ispnet()
                         OneLineIconListItem:
                             size: 100, 100
                             text: 'Локальная сеть'
                             on_release:
                                 app.root.current = 'Local'
+                                app.resour_localnet()
                             IconLeftWidget:
                                 icon: "router-network"
                                 on_release:
                                     app.root.current = 'Local'
+                                    app.resour_localnet()
                         OneLineIconListItem:
                             size: 100, 100
                             text: 'Беспроводные сети'
                             on_release:
                                 app.root.current = 'wifi'
+                                app.resour_wifi()
                             IconLeftWidget:
                                 icon: "radio-tower"
                                 on_release:
                                     app.root.current = 'wifi'
+                                    app.resour_wifi()
                         OneLineIconListItem:
                             size: 100, 100
                             text: 'Проброс портов'
@@ -195,13 +201,14 @@
                                     app.root.current = 'Other'
                         OneLineIconListItem:
                             size: 100, 100
-                            text: 'Сведения и обновление'
+                            text: 'Обновление'
                             on_release:
                                 app.root.current = 'Update'
                             IconLeftWidget:
                                 icon: "information"
                                 on_release:
                                     app.root.current = 'Update'
+                                    app.update_have()
 <Internet>:
     MDBoxLayout:
         orientation: 'vertical'
@@ -246,17 +253,18 @@
                         pos_hint: {'center_x': 0.9, 'center_y': .5}
                         on_release:
                             app.autoisp()
-                            app.resour()
                 OneLineIconListItem:
                     size: 100, 50
                     text: 'Статический'
                     on_release:
                         app.root.current = 'Static'
+                        app.resour_static()
                 OneLineIconListItem:
                     size: 100, 50
                     text: 'PPPoE'
                     on_release:
                         app.root.current = 'PPPoE'
+                        app.resour_pppoe()
                 OneLineIconListItem:
                     size: 100, 50
                     text: 'LTE, WCDMA, GSM, USB-модем'
@@ -641,7 +649,7 @@
                         md_bg_color: .35, .35, 1, 1
                         font_size: 14
                         size_hint_x: None
-                        pos_hint: {'center_x': 0.9, 'center_y': .5}
+                        pos_hint: {'center_x': 0.1, 'center_y': .5}
                         on_release:
                             app.static_remove()
                     MDRaisedButton:
@@ -678,6 +686,10 @@
                     text: 'Подключение через PPPoE'
                 OneLineIconListItem:
                     size: 100, 50
+                    id: pppoe_status
+                    text: 'Статус: нет подключения'
+                OneLineIconListItem:
+                    size: 100, 50
                     text: 'Логин'
                     MDTextField:
                         id: pppoe_login
@@ -696,14 +708,21 @@
                     size: 100, 50
                     text: ''
                     MDRaisedButton:
-                        id: pppoe_net
+                        text: "Удалить подключение"
+                        md_bg_color: .35, .35, 1, 1
+                        font_size: 14
+                        size_hint_x: None
+                        pos_hint: {'center_x': 0.1, 'center_y': .5}
+                        on_release:
+                            app.pppoe_remover()
+                    MDRaisedButton:
                         text: "Сохранить"
                         md_bg_color: .35, .35, 1, 1
                         font_size: 14
                         size_hint_x: None
                         pos_hint: {'center_x': 0.9, 'center_y': .5}
                         on_release:
-                            app.u()
+                            app.pppoe_connecting()
 <Forward>:
     MDBoxLayout:
         orientation: 'vertical'
@@ -724,6 +743,9 @@
                         icon: "arrow-left"
                         on_release:
                             app.root.current = 'MainMenu'
+                OneLineIconListItem:
+                    size: 100, 500
+                    text: 'Ожидайте в будующих обновлениях'
 <VPN>:
     MDBoxLayout:
         orientation: 'vertical'
@@ -748,12 +770,177 @@
                     size: 100, 50
                     text: 'Клиент'
                     on_release:
-                        app.root.current = 'MainMenu'
+                        app.root.current = 'VPN_client'
                 OneLineIconListItem:
                     size: 100, 50
                     text: 'Сервер'
                     on_release:
-                        app.root.current = 'MainMenu'
+                        app.root.current = 'VPN_servers'
+<wireguard_client>:
+    MDBoxLayout:
+        orientation: 'vertical'
+        MDToolbar:
+            title: 'MikroLite'
+            md_bg_color: .35, .35, 1, 1
+            specific_text_color: 1, 1, 1, 1
+            right_action_items: [["exit-to-app", lambda x: app.logout()]]
+        ScrollView:
+            MDList:
+                adaptive_height: True
+                OneLineIconListItem:
+                    size: 100, 50
+                    text: 'Назад'
+                    on_release:
+                        app.root.current = 'VPN_client'
+                ThreeLineListItem:
+                    text: "Инструкция по включению"
+                    secondary_text: "1)Набрать выданный ip адрес и любой порт в WireGuard Gate и включить WireGuard Gate"
+                    tertiary_text: "2)Набрать ключ, адрес и порт конечной точки в Пир"
+                OneLineIconListItem:
+                    size: 100, 50
+                    text: 'WireGuard Gate'
+                    MDTextField:
+                        id: wireguard_server
+                        hint_text: "Входящий порт"
+                        width: 100
+                        size_hint_x: None
+                        pos_hint: {'center_x': 0.55, 'center_y': .5}
+                OneLineIconListItem:
+                    size: 100, 50
+                    text: 'IP выданный сервером'
+                    MDTextField:
+                        id: wireguard_address
+                        hint_text: "192.168.12.12"
+                        width: 100
+                        size_hint_x: None
+                        pos_hint: {'center_x': 0.55, 'center_y': .5}
+                OneLineIconListItem:
+                    size: 100, 50
+                    text: 'Публичный ключ'
+                    MDTextField:
+                        id: wireguard_key
+                        hint_text: ""
+                        width: 100
+                        size_hint_x: None
+                        pos_hint: {'center_x': 0.55, 'center_y': .5}
+                OneLineIconListItem:
+                    size: 100, 50
+                    text: ''
+                    MDRaisedButton:
+                        id: wireguard_active_key
+                        text: "Вкл"
+                        md_bg_color: .35, .35, 1, 1
+                        font_size: 14
+                        size_hint_x: None
+                        pos_hint: {'center_x': 0.9, 'center_y': .5}
+                        on_release:
+                            app.wireguard_client()
+                OneLineIconListItem:
+                    size: 100, 50
+                    text: 'Пир'
+                OneLineIconListItem:
+                    size: 100, 50
+                    text: 'Ключ сервера'
+                    MDTextField:
+                        id: wireguard_key_srv
+                        hint_text: "Ключ сервера"
+                        width: 100
+                        size_hint_x: None
+                        pos_hint: {'center_x': 0.55, 'center_y': .5}
+                OneLineIconListItem:
+                    size: 100, 50
+                    text: 'IP/DNS сервера'
+                    MDTextField:
+                        id: wireguard_end
+                        hint_text: "Конечная точка"
+                        width: 100
+                        size_hint_x: None
+                        pos_hint: {'center_x': 0.55, 'center_y': .5}
+                OneLineIconListItem:
+                    size: 100, 50
+                    text: 'Порт сервера'
+                    MDTextField:
+                        id: wireguard_end_port
+                        hint_text: "Порт конечной точки"
+                        width: 100
+                        size_hint_x: None
+                        pos_hint: {'center_x': 0.55, 'center_y': .5}
+                OneLineIconListItem:
+                    size: 100, 50
+                    text: ''
+                    MDRaisedButton:
+                        id: wireguard_active
+                        text: "Вкл"
+                        md_bg_color: .35, .35, 1, 1
+                        font_size: 14
+                        size_hint_x: None
+                        pos_hint: {'center_x': 0.9, 'center_y': .5}
+                        on_release:
+                            app.wireguard_server()
+                ThreeLineListItem:
+                    text: "Инструкция по выключению"
+                    secondary_text: "1)Выключить Пир"
+                    tertiary_text: "2)Выключить WireGuard Gate"
+                OneLineIconListItem:
+                    size: 100, 50
+                    text: 'Весь траффик через wireguard'
+                    MDRaisedButton:
+                        id: wireguard_all_traffic
+                        text: "Вкл"
+                        md_bg_color: .35, .35, 1, 1
+                        font_size: 14
+                        size_hint_x: None
+                        pos_hint: {'center_x': 0.9, 'center_y': .5}
+                        on_release:
+                            app.wireguard_all_traff()
+<VPN_client>:
+    MDBoxLayout:
+        orientation: 'vertical'
+        MDToolbar:
+            title: 'MikroLite'
+            md_bg_color: .35, .35, 1, 1
+            specific_text_color: 1, 1, 1, 1
+            right_action_items: [["exit-to-app", lambda x: app.logout()]]
+        ScrollView:
+            MDList:
+                adaptive_height: True
+                OneLineIconListItem:
+                    size: 100, 50
+                    text: 'Назад'
+                    on_release:
+                        app.root.current = 'VPN'
+                    IconLeftWidget:
+                        icon: "arrow-left"
+                        on_release:
+                            app.root.current = 'VPN'
+                OneLineIconListItem:
+                    size: 100, 50
+                    text: 'Wireguard'
+                    on_release:
+                        app.root.current = 'wireguard_client'
+<VPN_servers>:
+    MDBoxLayout:
+        orientation: 'vertical'
+        MDToolbar:
+            title: 'MikroLite'
+            md_bg_color: .35, .35, 1, 1
+            specific_text_color: 1, 1, 1, 1
+            right_action_items: [["exit-to-app", lambda x: app.logout()]]
+        ScrollView:
+            MDList:
+                adaptive_height: True
+                OneLineIconListItem:
+                    size: 100, 50
+                    text: 'Назад'
+                    on_release:
+                        app.root.current = 'VPN'
+                    IconLeftWidget:
+                        icon: "arrow-left"
+                        on_release:
+                            app.root.current = 'VPN'
+                OneLineIconListItem:
+                    size: 100, 500
+                    text: 'Ожидайте в будующих обновлениях'
 <Other>:
     MDBoxLayout:
         orientation: 'vertical'
@@ -774,6 +961,80 @@
                         icon: "arrow-left"
                         on_release:
                             app.root.current = 'MainMenu'
+                OneLineIconListItem:
+                    size: 100, 50
+                    text: 'MikroTik DDNS Cloud'
+                    MDTextField:
+                        id: ddns_router
+                        hint_text: ""
+                        width: 200
+                        size_hint_x: None
+                        pos_hint: {'center_x': 0.55, 'center_y': .5}
+                OneLineIconListItem:
+                    size: 100, 50
+                    text: 'Оповещения в Telegram'
+                    on_release:
+                        app.root.current = 'Telegram'
+<Telegram>:
+    MDBoxLayout:
+        orientation: 'vertical'
+        MDToolbar:
+            title: 'MikroLite'
+            md_bg_color: .35, .35, 1, 1
+            specific_text_color: 1, 1, 1, 1
+            right_action_items: [["exit-to-app", lambda x: app.logout()]]
+        ScrollView:
+            MDList:
+                adaptive_height: True
+                OneLineIconListItem:
+                    size: 100, 50
+                    text: 'Назад'
+                    on_release:
+                        app.root.current = 'MainMenu'
+                    IconLeftWidget:
+                        icon: "arrow-left"
+                        on_release:
+                            app.root.current = 'MainMenu'
+                OneLineIconListItem:
+                    size: 100, 50
+                    text: 'Оповещения в Telegram'
+                OneLineIconListItem:
+                    size: 100, 50
+                    text: 'Токен вашего бота'
+                    MDTextField:
+                        id: telegram_token
+                        hint_text: "469:feg"
+                        width: 100
+                        size_hint_x: None
+                        pos_hint: {'center_x': 0.55, 'center_y': .5}
+                OneLineIconListItem:
+                    size: 100, 50
+                    text: 'ID чата для вывода'
+                    MDTextField:
+                        id: telegram_chat
+                        hint_text: "5878"
+                        width: 100
+                        size_hint_x: None
+                        pos_hint: {'center_x': 0.55, 'center_y': .5}
+                OneLineIconListItem:
+                    size: 100, 50
+                    text: ''
+                    MDRaisedButton:
+                        text: "Удалить"
+                        md_bg_color: .35, .35, 1, 1
+                        font_size: 14
+                        size_hint_x: None
+                        pos_hint: {'center_x': 0.1, 'center_y': .5}
+                        on_release:
+                            app.telegram_remover()
+                    MDRaisedButton:
+                        text: "Сохранить"
+                        md_bg_color: .35, .35, 1, 1
+                        font_size: 14
+                        size_hint_x: None
+                        pos_hint: {'center_x': 0.9, 'center_y': .5}
+                        on_release:
+                            app.telegram()
 <Update>:
     MDBoxLayout:
         orientation: 'vertical'
@@ -794,3 +1055,24 @@
                         icon: "arrow-left"
                         on_release:
                             app.root.current = 'MainMenu'
+                OneLineIconListItem:
+                    size: 100, 50
+                    id: os_update
+                    text: 'Обновления не найдены'
+                    MDRaisedButton:
+                        id: os_updater
+                        text: "Проверить"
+                        md_bg_color: .35, .35, 1, 1
+                        font_size: 14
+                        size_hint_x: None
+                        pos_hint: {'center_x': 0.9, 'center_y': .5}
+                        on_release:
+                            app.update_os()
+                OneLineIconListItem:
+                    size: 100, 50
+                    id: os_verision
+                    text: 'Версия ОС:'
+                OneLineIconListItem:
+                    size: 100, 50
+                    id: os_firmware
+                    text: 'Версия прошивки:'
